@@ -97,7 +97,7 @@ erDiagram
 - [x] **1.1 Setup de Infraestructura con Gradle:**
   - Configuración de `settings.gradle` y `build.gradle` con Java 21 LTS y Spring Boot 3.3.4.
   - Entendimiento de los 4 alcances de dependencias: `implementation`, `runtimeOnly`, `compileOnly`, `testImplementation`.
-- [ ] **1.2 Clean Architecture & Paquetes de Dominio:**
+- [x] **1.2 Clean Architecture & Paquetes de Dominio:**
   - Creación física y separación estricta de responsabilidades por paquetes: `controller/`, `service/`, `repository/`, `domain/`, `dto/`, `config/`.
   - Aplicación de **SRP (Single Responsibility Principle)** a nivel de arquitectura.
 - [ ] **1.3 Inyección de Dependencias Quirúrgica & SOLID (DIP):**
