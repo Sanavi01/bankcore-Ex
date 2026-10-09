@@ -1,0 +1,16 @@
+<div class="header-banco">
+    <!-- 1. INTERPOLACIÓN {{ }}: Muestra valores de texto en pantalla -->
+    <h2>{{ nombreBanco }}</h2>
+    <p>Alertas activas: {{ alertasPendientes }}</p>
+
+    <!-- 2. PROPERTY BINDING [ ]: Controla atributos del elemento HTML desde TypeScript -->
+    <!-- Si canalDigitalAbierto es false, el botón se bloquea automáticamente -->
+    <button [disabled]="!canalDigitalAbierto">
+        Operaciones en Línea
+    </button>
+
+    <!-- 3. EVENT BINDING ( ): Captura el clic del usuario y ejecuta una función -->
+    <button (click)="descargarExtracto()">
+        Descargar Extracto
+    </button>
+</div>

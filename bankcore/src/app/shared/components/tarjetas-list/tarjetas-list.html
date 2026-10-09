@@ -1,0 +1,52 @@
+<div class="tarjetas-grid">
+  @for (tarjeta of tarjetas(); track tarjeta.id) {
+  <div class="plastico-tarjeta" [class.bloqueada]="tarjeta.estado === 'BLOQUEADA'">
+
+    <!-- Cabecera de la tarjeta con franquicia y estado -->
+    <div class="tarjeta-top">
+      <span class="franquicia-badge">{{ tarjeta.franquicia }}</span>
+
+      @if (tarjeta.estado === 'ACTIVA') {
+      <span class="tag-estado activa">● Activa</span>
+      } @else {
+      <span class="tag-estado bloqueada">🔒 Bloqueada</span>
+      }
+    </div>
+
+    <!-- Número enmascarado y Titular -->
+    <div class="tarjeta-numero">{{ tarjeta.numeroEnmascarado }}</div>
+    <div class="tarjeta-titular">{{ tarjeta.titular }}</div>
+
+    <!-- Cupo y Saldos -->
+    <div class="tarjeta-saldos">
+      <div>
+        <small>Disponible</small>
+        <strong>{{ tarjeta.cupoDisponible | currency:'USD':'symbol':'1.0-0' }}</strong>
+      </div>
+      <div class="texto-derecha">
+        <small>Límite Total</small>
+        <span>{{ tarjeta.cupoTotal | currency:'USD':'symbol':'1.0-0' }}</span>
+      </div>
+    </div>
+
+    <!-- Botones de Acción (Emiten eventos hacia el padre) -->
+    <div class="tarjeta-acciones">
+      <button class="btn-pagar" [disabled]="tarjeta.estado === 'BLOQUEADA'" (click)="pagar.emit(tarjeta)">
+        Pagar Tarjeta
+      </button>
+
+      @if (tarjeta.estado === 'ACTIVA') {
+      <button class="btn-bloquear" (click)="bloquear.emit(tarjeta.id)">
+        Bloquear
+      </button>
+      }
+    </div>
+
+  </div>
+  } @empty {
+  <!-- Se muestra si el arreglo viene vacío -->
+  <div class="sin-tarjetas">
+    <p>💳 No tienes tarjetas de crédito asociadas a este perfil.</p>
+  </div>
+  }
+</div>

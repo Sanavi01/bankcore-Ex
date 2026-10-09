@@ -1,0 +1,175 @@
+.tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  margin: 1.5rem 0;
+  font-family: inherit;
+}
+
+.tabla-bancaria {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+
+  thead {
+    background-color: #0f172a;
+    color: #f8fafc;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+
+    th {
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #e2e8f0;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #f8fafc;
+      }
+    }
+
+    td {
+      padding: 1rem 1.25rem;
+      vertical-align: middle;
+      color: #334155;
+    }
+  }
+}
+
+.col-fecha {
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.col-concepto {
+  strong {
+    display: block;
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  .ref-subtexto {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+}
+
+.tipo-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+
+  &.tipo-ingreso {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  &.tipo-egreso {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+
+  &.badge-completada {
+    background-color: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+  }
+
+  &.badge-pendiente {
+    background-color: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+
+  &.badge-rechazada {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+}
+
+.col-monto {
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  &.monto-positivo {
+    color: #16a34a;
+  }
+
+  &.monto-negativo {
+    color: #dc2626;
+  }
+}
+
+.btn-detalle {
+  background-color: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #1e293b;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.fila-vacia {
+  .mensaje-vacio {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+
+    .icono-vacio {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+  }
+}
+
+.texto-derecha {
+  text-align: right;
+}
+
+.texto-centro {
+  text-align: center;
+}

@@ -1,0 +1,24 @@
+.marco-tarjeta {
+  border: 2px solid #d4af37;
+  border-radius: 8px;
+  background-color: #1a1a2e;
+  color: #ffffff;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  font-family: sans-serif;
+
+  .cinta-bancaria {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #d4af37;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .cuerpo-tarjeta {
+    padding: 0.5rem 0;
+  }
+}

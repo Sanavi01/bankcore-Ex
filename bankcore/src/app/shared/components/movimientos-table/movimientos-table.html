@@ -1,0 +1,83 @@
+<div class="tabla-contenedor">
+  <table class="tabla-bancaria">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Concepto</th>
+        <th>Tipo</th>
+        <th>Estado</th>
+        <th class="texto-derecha">Monto</th>
+        <th class="texto-centro">Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (tx of transacciones(); track tx.id) {
+      <tr class="fila-tx" (click)="onSeleccionar(tx)">
+        <!-- Fecha formateada con DatePipe -->
+        <td class="col-fecha">{{ tx.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+
+        <!-- Concepto y Referencia -->
+        <td class="col-concepto">
+          <strong>{{ tx.concepto }}</strong>
+          @if (tx.referencia) {
+          <small class="ref-subtexto">Ref: {{ tx.referencia }}</small>
+          }
+        </td>
+
+        <!-- Tipo (Ingreso / Egreso) -->
+        <td>
+          <span class="tipo-tag" [class.tipo-ingreso]="tx.tipo === 'INGRESO'"
+            [class.tipo-egreso]="tx.tipo === 'EGRESO'">
+            {{ tx.tipo }}
+          </span>
+        </td>
+
+        <!-- Estado con @switch -->
+        <td>
+          @switch (tx.estado) {
+          @case ('COMPLETADA') {
+          <span class="badge badge-completada">Completada</span>
+          }
+          @case ('PENDIENTE') {
+          <span class="badge badge-pendiente">Pendiente</span>
+          }
+          @case ('RECHAZADA') {
+          <span class="badge badge-rechazada">Rechazada</span>
+          }
+          @default {
+          <span class="badge badge-desconocida">{{ tx.estado }}</span>
+          }
+          }
+        </td>
+
+        <!-- Monto dinámico según INGRESO o EGRESO -->
+        <td class="col-monto texto-derecha" [class.monto-positivo]="tx.tipo === 'INGRESO'"
+          [class.monto-negativo]="tx.tipo === 'EGRESO'">
+          @if (tx.tipo === 'INGRESO') {
+          + {{ tx.monto | currency:'USD':'symbol':'1.2-2' }}
+          } @else {
+          - {{ tx.monto | currency:'USD':'symbol':'1.2-2' }}
+          }
+        </td>
+
+        <!-- Acción -->
+        <td class="texto-centro">
+          <button class="btn-detalle" (click)="onSeleccionar(tx); $event.stopPropagation()">
+            Ver Comprobante
+          </button>
+        </td>
+      </tr>
+      } @empty {
+      <!-- Cláusula @empty cuando la lista está vacía -->
+      <tr class="fila-vacia">
+        <td colspan="6">
+          <div class="mensaje-vacio">
+            <span class="icono-vacio">📂</span>
+            <p>No se encontraron movimientos registrados en este periodo bancario.</p>
+          </div>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>

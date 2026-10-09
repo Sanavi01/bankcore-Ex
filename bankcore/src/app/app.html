@@ -1,0 +1,93 @@
+<app-header></app-header>
+
+<main style="max-width: 1100px; margin: 0 auto; padding: 1.5rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  
+  <!-- Tarjeta de Saldo Principal (Uso de ng-content) -->
+  <app-bank-card>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+          <h2 style="margin: 0; font-size: 1.5rem; color: #f8fafc;">Cuenta de Ahorros Principal</h2>
+          <span style="background: rgba(255, 255, 255, 0.15); color: #cbd5e1; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 500;">
+            {{ configBancaria.nombreBanco }} ({{ configBancaria.versionApi }})
+          </span>
+        </div>
+        <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">ES91-2100-0418-45-9921448102</p>
+      </div>
+      <div style="text-align: right;">
+        <span style="font-size: 0.8rem; text-transform: uppercase; color: #d4af37; letter-spacing: 1px;">Saldo Total</span>
+        <div style="font-size: 2rem; font-weight: 800; color: #ffffff;">$ 19,850.50 <small style="font-size: 0.9rem; font-weight: 400; color: #94a3b8;">USD</small></div>
+      </div>
+    </div>
+  </app-bank-card>
+
+  <!-- SECCIÓN DEL HITO 1: TABLA DUMB REUTILIZABLE -->
+  <section style="margin-top: 2.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+      <div>
+        <h3 style="margin: 0; font-size: 1.3rem; color: #0f172a;">Últimos Movimientos Bancarios</h3>
+        <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: #64748b;">
+          Componente presentacional desacoplado conectado vía Signal Input y Output
+        </p>
+      </div>
+
+      <!-- Botón interactivo para probar la cláusula @empty -->
+      <button 
+        (click)="alternarLista()"
+        style="background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem;">
+        {{ historial().length > 0 ? 'Simular Lista Vacía ([] sin datos)' : 'Restaurar Datos Oficiales' }}
+      </button>
+    </div>
+
+    <!-- EL DUMB COMPONENT EN ACCIÓN -->
+    <app-movimientos-table 
+      [transacciones]="historial()"
+      (seleccionar)="mostrarDetalle($event)">
+    </app-movimientos-table>
+
+    <!-- DETALLE CAPTURADO POR EL SMART COMPONENT VÍA (seleccionar) -->
+    @if (detalleActivo(); as tx) {
+      <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1.25rem; margin-top: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h4 style="margin: 0; color: #166534; font-size: 1.1rem;">
+            ✅ Comprobante Recibido por el Smart Component
+          </h4>
+          <button (click)="detalleActivo.set(null)" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #166534;">✕</button>
+        </div>
+        <p style="margin: 0.5rem 0 0; color: #15803d; font-size: 0.9rem;">
+          Se seleccionó la transacción <strong>#{{ tx.id }}</strong> ({{ tx.concepto }}) por un valor de 
+          <strong>$ {{ tx.monto }} USD</strong> con estado <strong>{{ tx.estado }}</strong>.
+        </p>
+      </div>
+    }
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- SECCIÓN 2: EJEMPLO PRÁCTICO PARA QUE IDENTIFIQUES EL FLUJO -->
+  <!-- ======================================================== -->
+  <section style="margin-top: 3.5rem; padding-top: 2rem; border-top: 2px dashed #e2e8f0;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.3rem; color: #0f172a;">Mis Tarjetas de Crédito</h3>
+      <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: #64748b;">
+        Componente Dumb 'app-tarjetas-list' orquestado por el padre
+      </p>
+    </div>
+
+    <!-- EL NUEVO COMPONENTE DUMB EN ACCIÓN -->
+    <app-tarjetas-list
+      [tarjetas]="tarjetasCredito()"
+      (bloquear)="bloquearTarjeta($event)"
+      (pagar)="pagarTarjeta($event)">
+    </app-tarjetas-list>
+
+    <!-- MENSAJE DE ACCIÓN NOTIFICADO AL PADRE -->
+    @if (mensajeAccionTarjeta()) {
+      <div style="background: #eff6ff; border: 1px solid #93c5fd; border-radius: 8px; padding: 1rem; margin-top: 1rem; color: #1e40af; font-size: 0.9rem;">
+        {{ mensajeAccionTarjeta() }}
+      </div>
+    }
+  </section>
+
+</main>
+
+<router-outlet></router-outlet>
