@@ -1,0 +1,53 @@
+# ====================================================================
+# BankCore Monorepo - Master .gitignore
+# ====================================================================
+
+# --- OS & Environment ---
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+!.env.example
+
+# --- IDEs & Editors ---
+.idea/
+*.iws
+*.iml
+*.ipr
+.project
+.classpath
+.settings/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# --- Angular Frontend (bankcore) ---
+**/node_modules/
+**/.angular/
+**/dist/
+**/tmp/
+**/out-tsc/
+**/bazel-out/
+**/.sass-cache/
+**/coverage/
+
+# --- Spring Boot / Gradle Backend (bankcore-backend) ---
+**/.gradle/
+**/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+*.class
+*.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+*.war
+*.ear
+*.nar
+
+# --- Testing & Reports ---
+**/testem.log
+**/libpeerconnection.log
+**/__screenshots__/
