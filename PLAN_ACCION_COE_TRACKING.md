@@ -106,7 +106,7 @@ erDiagram
 - [x] **1.4 Contratos Inmutables con Java 21 Records (DTO Pattern):**
   - Creación de DTOs de entrada y salida: `TransferenciaRequestDto`, `TransferenciaResponseDto`, `CuentaResponseDto`.
   - Por qué los `records` reemplazan clases mutables con getters/setters y protegen la integridad de memoria.
-- [ ] **1.5 Validación Defensiva de Entradas (Jakarta Validation):**
+- [x] **1.5 Validación Defensiva de Entradas (Jakarta Validation):**
   - Anotaciones declarativas en DTOs: `@NotNull`, `@Positive`, `@NotBlank`.
   - Patrón *Fail-Fast*: rechazar peticiones maliciosas (ej. montos negativos) en la puerta de enlace (`HTTP 400 Bad Request`).
 - [ ] **1.6 La Tríada de Dominio JPA (Entidades de Base de Datos):**
