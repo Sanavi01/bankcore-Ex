@@ -100,10 +100,10 @@ erDiagram
 - [x] **1.2 Clean Architecture & Paquetes de Dominio:**
   - Creación física y separación estricta de responsabilidades por paquetes: `controller/`, `service/`, `repository/`, `domain/`, `dto/`, `config/`.
   - Aplicación de **SRP (Single Responsibility Principle)** a nivel de arquitectura.
-- [ ] **1.3 Inyección de Dependencias Quirúrgica & SOLID (DIP):**
+- [x] **1.3 Inyección de Dependencias Quirúrgica & SOLID (DIP):**
   - Análisis técnico: por qué la inyección por atributo `@Autowired` es un antipatrón prohibido (oculta dependencias y rompe tests unitarios).
   - Implementación de inyección por constructor con campos inmutables `private final` (o `@RequiredArgsConstructor` de Lombok).
-- [ ] **1.4 Contratos Inmutables con Java 21 Records (DTO Pattern):**
+- [x] **1.4 Contratos Inmutables con Java 21 Records (DTO Pattern):**
   - Creación de DTOs de entrada y salida: `TransferenciaRequestDto`, `TransferenciaResponseDto`, `CuentaResponseDto`.
   - Por qué los `records` reemplazan clases mutables con getters/setters y protegen la integridad de memoria.
 - [ ] **1.5 Validación Defensiva de Entradas (Jakarta Validation):**
