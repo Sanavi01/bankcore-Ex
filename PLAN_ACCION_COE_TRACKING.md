@@ -26,10 +26,17 @@ flowchart TD
         A[BankCore SPA<br/>Standalone + Signals + Nginx]
     end
 
-    subgraph Backend["Backend Layer (Spring Boot 3 / Java 21)"]
-        B[API Gateway / REST Controllers]
-        C[Application Services & Domain Rules]
+    subgraph Backend["Backend Layer (Spring Boot 3 / Java 21 - Hexagonal Clean Architecture)"]
+        B[Infrastructure: REST Controllers & DTOs]
+        C[Application: Use Cases & Services]
+        D_DOM[Domain: Pure Models & Ports - Zero Frameworks]
+        D_PERS[Infrastructure: JPA Entities, Mappers & Repositories]
         D[(PostgreSQL Database)]
+        B --> C
+        C --> D_DOM
+        D_PERS -.->|Implements Ports & Maps Entities| D_DOM
+        C --> D_PERS
+        D_PERS --> D
     end
 
     subgraph Messaging["Async Event Layer (RabbitMQ)"]
@@ -92,32 +99,50 @@ erDiagram
 ---
 
 ### ☕ DÍA 1: Cimientos del Backend con Java 21 & Spring Boot 3
-*Objetivo: Construir la API REST de BankCore aplicando Clean Architecture, DTOs con Records, persistencia JPA, transacciones ACID e Idempotencia Financiera.*
+*Objetivo: Construir la API REST de BankCore aplicando Clean Architecture Hexagonal Estricta (Ports & Adapters), DTOs con Records, persistencia JPA desacoplada mediante Mappers, transacciones ACID e Idempotencia Financiera.*
+
+> **🏛️ Topología Oficial Hexagonal de BankCore (Inviolable):**
+> - **`domain/` (Núcleo Puro - Cero Frameworks):**
+>   - `model/`: Entidades de dominio puras (`Cuenta`, `Tarjeta`, `Transaccion`) con lógica de negocio rica.
+>   - `enums/`: Tipos restringidos (`EstadoCuenta`, `TipoMovimiento`).
+>   - `port/`: Contratos e interfaces de salida (`CuentaRepositoryPort`, etc.).
+> - **`service/` (Casos de Uso / Capa de Aplicación):**
+>   - Orquestación de reglas bancarias llamando exclusivamente a los puertos de dominio.
+> - **`infrastructure/` (Detalles Técnicos & Adaptadores Externos):**
+>   - `persistence/entity/`: Entidades JPA de base de datos (`CuentaJpaEntity`, `TarjetaJpaEntity`, `TransaccionJpaEntity`).
+>   - `persistence/repository/`: Repositorios Spring Data JPA (`SpringDataCuentaRepository`, etc.).
+>   - `persistence/mapper/`: Mappers bidireccionales (`CuentaPersistenceMapper`: JPA <-> Dominio Puro).
+>   - `persistence/adapter/`: Implementación de los puertos (`CuentaRepositoryAdapter` implementa `CuentaRepositoryPort`).
+>   - `rest/controller/`: Controladores HTTP REST (`CuentaController`, etc.).
+>   - `rest/dto/`: Contratos de red inmutables con Records (`TransferenciaRequestDto`, etc.).
+>   - `rest/mapper/`: Mappers de presentación (`CuentaRestMapper`: Dominio Puro <-> DTO).
+>   - `config/`: Configuraciones de Spring, CORS, OpenAPI.
 
 - [x] **1.1 Setup de Infraestructura con Gradle:**
   - Configuración de `settings.gradle` y `build.gradle` con Java 21 LTS y Spring Boot 3.3.4.
   - Entendimiento de los 4 alcances de dependencias: `implementation`, `runtimeOnly`, `compileOnly`, `testImplementation`.
-- [x] **1.2 Clean Architecture & Paquetes de Dominio:**
-  - Creación física y separación estricta de responsabilidades por paquetes: `controller/`, `service/`, `repository/`, `domain/`, `dto/`, `config/`.
-  - Aplicación de **SRP (Single Responsibility Principle)** a nivel de arquitectura.
+- [x] **1.2 Clean Architecture Hexagonal & Diseño de Paquetes:**
+  - Creación física y separación estricta de responsabilidades: `domain/` (puro), `service/`, `infrastructure/persistence/`, `infrastructure/rest/`.
+  - Aplicación de **SRP (Single Responsibility Principle)** e Inversión de Dependencias (DIP) a nivel de capas.
 - [x] **1.3 Inyección de Dependencias Quirúrgica & SOLID (DIP):**
   - Análisis técnico: por qué la inyección por atributo `@Autowired` es un antipatrón prohibido (oculta dependencias y rompe tests unitarios).
   - Implementación de inyección por constructor con campos inmutables `private final` (o `@RequiredArgsConstructor` de Lombok).
 - [x] **1.4 Contratos Inmutables con Java 21 Records (DTO Pattern):**
-  - Creación de DTOs de entrada y salida: `TransferenciaRequestDto`, `TransferenciaResponseDto`, `CuentaResponseDto`.
+  - Creación de DTOs de entrada y salida en `infrastructure.rest.dto`: `TransferenciaRequestDto`, `TransferenciaResponseDto`, `CuentaResponseDto`.
   - Por qué los `records` reemplazan clases mutables con getters/setters y protegen la integridad de memoria.
 - [x] **1.5 Validación Defensiva de Entradas (Jakarta Validation):**
   - Anotaciones declarativas en DTOs: `@NotNull`, `@Positive`, `@NotBlank`.
   - Patrón *Fail-Fast*: rechazar peticiones maliciosas (ej. montos negativos) en la puerta de enlace (`HTTP 400 Bad Request`).
-- [ ] **1.6 La Tríada de Dominio JPA (Entidades de Base de Datos):**
-  - Mapeo de entidades relacionales con Hibernate: `CuentaEntity`, `TarjetaEntity` y `TransaccionEntity`.
-  - Tipado estricto con `@Entity`, `@Table`, `@Id`, `@GeneratedValue(strategy = GenerationType.IDENTITY)`.
-- [ ] **1.7 Relaciones Relacionales & Prevención del Antipatrón N+1:**
-  - Relación `@ManyToOne` entre `TarjetaEntity` $\rightarrow$ `CuentaEntity` y `TransaccionEntity` $\rightarrow$ `CuentaEntity`.
+- [ ] **1.6 Desacoplamiento de Persistencia: Entidades JPA & Mappers Bidireccionales:**
+  - Creación de modelos de dominio puros en `domain.model` (`Cuenta`, `Tarjeta`, `Transaccion`) libres de anotaciones de Hibernate.
+  - Mapeo de tablas SQL en `infrastructure.persistence.entity` (`CuentaJpaEntity`, `TarjetaJpaEntity`, `TransaccionJpaEntity`).
+  - Creación de Mappers en `infrastructure.persistence.mapper` (`CuentaPersistenceMapper`, etc.) para traducir entre el Dominio Puro y la Base de Datos.
+- [ ] **1.7 Puertos de Dominio & Adaptadores de Persistencia (Ports & Adapters):**
+  - Definición de interfaces en `domain.port` (`CuentaRepositoryPort`, etc.).
+  - Implementación del adaptador `CuentaRepositoryAdapter` usando `SpringDataCuentaRepository`.
+- [ ] **1.8 Relaciones Relacionales & Prevención del Antipatrón N+1:**
+  - Relación `@ManyToOne` entre `TarjetaJpaEntity` $\rightarrow$ `CuentaJpaEntity` y `TransaccionJpaEntity` $\rightarrow$ `CuentaJpaEntity`.
   - Por qué la carga perezosa (`FetchType.LAZY`) es obligatoria en banca para evitar consultas SQL explosivas.
-- [ ] **1.8 Capa de Persistencia (Spring Data JPA Repositories):**
-  - Interfaces `CuentaRepository`, `TarjetaRepository` y `TransaccionRepository` extendiendo `JpaRepository`.
-  - Aplicación del **Repository Pattern**: abstraer el acceso a datos sin acoplarse a SQL nativo.
 - [ ] **1.9 Lógica Bancaria y Transaccionalidad ACID en Servicios:**
   - Creación de `CuentaService` y `TransferenciaService`.
   - Aplicación de `@Transactional(rollbackFor = Exception.class)` para garantizar atomicidad estricta en el débito y crédito.
