@@ -133,23 +133,23 @@ erDiagram
 - [x] **1.5 Validación Defensiva de Entradas (Jakarta Validation):**
   - Anotaciones declarativas en DTOs: `@NotNull`, `@Positive`, `@NotBlank`.
   - Patrón *Fail-Fast*: rechazar peticiones maliciosas (ej. montos negativos) en la puerta de enlace (`HTTP 400 Bad Request`).
-- [ ] **1.6 Desacoplamiento de Persistencia: Entidades JPA & Mappers Bidireccionales:**
+- [x] **1.6 Desacoplamiento de Persistencia: Entidades JPA & Mappers Bidireccionales:**
   - Creación de modelos de dominio puros en `domain.model` (`Cuenta`, `Tarjeta`, `Transaccion`) libres de anotaciones de Hibernate.
   - Mapeo de tablas SQL en `infrastructure.persistence.entity` (`CuentaJpaEntity`, `TarjetaJpaEntity`, `TransaccionJpaEntity`).
   - Creación de Mappers en `infrastructure.persistence.mapper` (`CuentaPersistenceMapper`, etc.) para traducir entre el Dominio Puro y la Base de Datos.
-- [ ] **1.7 Puertos de Dominio & Adaptadores de Persistencia (Ports & Adapters):**
+- [x] **1.7 Puertos de Dominio & Adaptadores de Persistencia (Ports & Adapters):**
   - Definición de interfaces en `domain.port` (`CuentaRepositoryPort`, etc.).
   - Implementación del adaptador `CuentaRepositoryAdapter` usando `SpringDataCuentaRepository`.
-- [ ] **1.8 Relaciones Relacionales & Prevención del Antipatrón N+1:**
+- [x] **1.8 Relaciones Relacionales & Prevención del Antipatrón N+1:**
   - Relación `@ManyToOne` entre `TarjetaJpaEntity` $\rightarrow$ `CuentaJpaEntity` y `TransaccionJpaEntity` $\rightarrow$ `CuentaJpaEntity`.
   - Por qué la carga perezosa (`FetchType.LAZY`) es obligatoria en banca para evitar consultas SQL explosivas.
-- [ ] **1.9 Lógica Bancaria y Transaccionalidad ACID en Servicios:**
-  - Creación de `CuentaService` y `TransferenciaService`.
+- [x] **1.9 Lógica Bancaria y Transaccionalidad ACID en Servicios:**
+  - Creación de `CuentaService` y `RealizarTransferenciaUseCase` (Patrón Command / Use Case).
   - Aplicación de `@Transactional(rollbackFor = Exception.class)` para garantizar atomicidad estricta en el débito y crédito.
-- [ ] **1.10 Patrón de Idempotencia Financiera en Código Real:**
-  - Creación de `IdempotenciaService` (o tabla de control).
-  - Intercepción del header `Idempotency-Key` (UUID) para detectar transacciones repetidas y evitar doble cobro.
-- [ ] **1.11 Controladores RESTful & Semántica HTTP:**
+- [x] **1.10 Patrón de Idempotencia Financiera en Código Real:**
+  - Creación de `IdempotenciaService` y entidad de control `RegistroIdempotenciaJpaEntity`.
+  - Manejo genérico con Jackson (`ObjectMapper`) y prevención de doble débito ante reintentos de red.
+- [x] **1.11 Controladores RESTful & Semántica HTTP:**
   - `CuentaController`, `TarjetaController` y `TransferenciaController` con `@RestController` y `@RequestMapping`.
   - Endpoints: `GET /api/v1/cuentas/{id}`, `GET /api/v1/cuentas/{id}/movimientos`, `GET /api/v1/cuentas/{id}/tarjetas`, `PUT /api/v1/tarjetas/{id}/bloquear`, `POST /api/v1/transferencias`.
   - Respuestas HTTP correctas (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`).
