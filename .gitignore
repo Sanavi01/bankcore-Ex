@@ -18,6 +18,8 @@ Thumbs.db
 .project
 .classpath
 .settings/
+bin/
+**/bin/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
