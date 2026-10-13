@@ -158,7 +158,7 @@ erDiagram
   - Captura de `"Saldo no disponible"` devolviendo el estándar bancario `ProblemDetail` (RFC 7807) sin fugar trazas internas (`StackTraces`).
 - [x] **1.13 Documentación Viva con Swagger / OpenAPI:**
   - Configuración de `springdoc-openapi` y verificación visual de endpoints en `http://localhost:8080/swagger-ui.html`.
-- [ ] **1.14 🎙️ Simulacro CoE Día 1:**
+- [x] **1.14 🎙️ Simulacro CoE Día 1:**
   - Batería de 3 preguntas de entrevista resueltas en 20 segundos (*Inyección por constructor, DTOs vs Entidades, Idempotencia*).
 
 ---
