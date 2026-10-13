@@ -160,6 +160,12 @@ erDiagram
   - Configuración de `springdoc-openapi` y verificación visual de endpoints en `http://localhost:8080/swagger-ui.html`.
 - [x] **1.14 🎙️ Simulacro CoE Día 1:**
   - Batería de 3 preguntas de entrevista resueltas en 20 segundos (*Inyección por constructor, DTOs vs Entidades, Idempotencia*).
+- [x] **1.15 Blindaje de Calidad, Gobernanza & DevSecOps (JaCoCo, ArchUnit, PITest, SonarQube):**
+  - Pruebas de integración BDD modulares (`CuentaIntegrationTest`, `TransferenciaIntegrationTest`, `TarjetaIntegrationTest`) con aislamiento transaccional y semántica *Given-When-Then*.
+  - **ArchUnit (Fitness Functions):** 5 reglas que auditan la pureza del dominio Hexagonal, DIP en servicios y prohibición de `@Autowired` por campo.
+  - **JaCoCo:** Cobertura de instrucciones del 81% (1,443 de 1,760 instrucciones cubiertas en 35 clases) superando Quality Gates corporativos.
+  - **PITest (Mutation Testing):** 88 mutaciones generadas, 53 mutantes eliminados y Test Strength de hasta el 94% en servicios clave.
+  - **SonarQube:** Configuración de Quality Gate estático enlazado a los reportes de cobertura XML.
 
 ---
 
