@@ -1,0 +1,36 @@
+name: BankCore CI - Quality Gates & Governance
+
+on:
+  push:
+    branches: [ develop, main, 'feature/**' ]
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  backend-quality-gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Permisos de ejecución a gradlew
+        run: chmod +x bankcore-backend/gradlew
+
+      - name: Ejecutar Pruebas, ArchUnit y JaCoCo
+        working-directory: bankcore-backend
+        run: ./gradlew test jacocoTestReport
+
+      - name: Publicar Reporte de Cobertura JaCoCo
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-coverage-report
+          path: bankcore-backend/build/reports/jacoco/test/html/
