@@ -153,7 +153,7 @@ erDiagram
   - `CuentaController`, `TarjetaController` y `TransferenciaController` con `@RestController` y `@RequestMapping`.
   - Endpoints: `GET /api/v1/cuentas/{id}`, `GET /api/v1/cuentas/{id}/movimientos`, `GET /api/v1/cuentas/{id}/tarjetas`, `PUT /api/v1/tarjetas/{id}/bloquear`, `POST /api/v1/transferencias`.
   - Respuestas HTTP correctas (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`).
-- [ ] **1.12 Manejo Centralizado de Excepciones (RFC 7807):**
+- [x] **1.12 Manejo Centralizado de Excepciones (RFC 7807):**
   - Creación de `GlobalExceptionHandler` con `@RestControllerAdvice` y `@ExceptionHandler`.
   - Captura de `"Saldo no disponible"` devolviendo el estándar bancario `ProblemDetail` (RFC 7807) sin fugar trazas internas (`StackTraces`).
 - [ ] **1.13 Documentación Viva con Swagger / OpenAPI:**
