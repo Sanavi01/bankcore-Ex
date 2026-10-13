@@ -71,6 +71,12 @@ tasks.named('test') {
     useJUnitPlatform()
     jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
     finalizedBy tasks.jacocoTestReport
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+        showExceptions true
+        showCauses true
+    }
 }
 
 tasks.named('jacocoTestReport') {
