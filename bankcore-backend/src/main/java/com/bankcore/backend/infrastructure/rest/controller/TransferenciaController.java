@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Adaptador Primario REST (Driving Adapter).
  * Expone el endpoint HTTP para transferencias bancarias.
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
  * 3. Delegar al Servicio de Aplicación (Fachada TransferenciaService).
  * 4. Retornar la respuesta con el código de estado HTTP 201 Created.
  */
+@Tag(name = "Transferencias", description = "Motor transaccional atómico (ACID) con soporte de Idempotencia")
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/transferencias")
@@ -35,6 +39,7 @@ public class TransferenciaController {
      * @param request Datos de la transferencia validados defensivamente con Bean Validation.
      * @return 201 Created con el comprobante inmutable de la transacción.
      */
+    @Operation(summary = "Realizar transferencia interbancaria", description = "Ejecuta una transferencia atómica entre cuentas aplicando verificación de idempotencia")
     @PostMapping
     public ResponseEntity<TransferenciaResponseDto> transferir(
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,

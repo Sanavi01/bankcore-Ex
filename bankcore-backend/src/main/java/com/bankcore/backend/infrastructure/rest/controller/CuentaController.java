@@ -18,12 +18,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
 /**
  * Adaptador Primario (HTTP / REST).
  * Expone la API pública consumida por la SPA de Angular.
  */
+@Tag(name = "Cuentas", description = "Endpoints para la administración y consulta de cuentas bancarias")
 @RestController
 @RequestMapping("/api/v1/cuentas")
 @RequiredArgsConstructor
@@ -35,18 +38,21 @@ public class CuentaController {
     private final TarjetaRestMapper tarjetaRestMapper;
     private final MovimientoRestMapper movimientoRestMapper;
 
+    @Operation(summary = "Obtener cuenta por ID")
     @GetMapping("/{id}")
     public ResponseEntity<CuentaResponseDto> obtenerPorId(@PathVariable Long id) {
         Cuenta cuenta = cuentaService.obtenerPorId(id);
         return ResponseEntity.ok(restMapper.toResponseDto(cuenta));
     }
 
+    @Operation(summary = "Obtener cuenta por número de cuenta")
     @GetMapping("/numero/{numeroCuenta}")
     public ResponseEntity<CuentaResponseDto> obtenerPorNumero(@PathVariable String numeroCuenta) {
         Cuenta cuenta = cuentaService.obtenerPorNumeroCuenta(numeroCuenta);
         return ResponseEntity.ok(restMapper.toResponseDto(cuenta));
     }
 
+    @Operation(summary = "Consultar movimientos contables de la cuenta")
     @GetMapping("/{id}/movimientos")
     public ResponseEntity<List<MovimientoResponseDto>> obtenerMovimientos(@PathVariable Long id) {
         List<Transaccion> transacciones = cuentaService.obtenerMovimientosPorCuentaId(id);
@@ -56,6 +62,7 @@ public class CuentaController {
         return ResponseEntity.ok(dtos);
     }
 
+    @Operation(summary = "Consultar tarjetas asociadas a la cuenta")
     @GetMapping("/{id}/tarjetas")
     public ResponseEntity<List<TarjetaResponseDto>> obtenerTarjetas(@PathVariable Long id) {
         List<Tarjeta> tarjetas = tarjetaService.obtenerPorCuentaId(id);
@@ -65,6 +72,7 @@ public class CuentaController {
         return ResponseEntity.ok(dtos);
     }
 
+    @Operation(summary = "Crear nueva cuenta bancaria")
     @PostMapping
     public ResponseEntity<CuentaResponseDto> crear(@Valid @RequestBody CrearCuentaRequestDto request) {
         Cuenta cuenta = cuentaService.crearCuenta(
