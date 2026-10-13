@@ -1,14 +1,15 @@
 package com.bankcore.backend.domain.model;
 
 import com.bankcore.backend.domain.EstadoCuenta;
+import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
  * Entidad de Dominio Puro (Clean Architecture).
- * Encapsula el estado y las reglas de negocio del banco.
- * Cero dependencias de frameworks o librerías externas.
+ * [EXPERIMENTO]: Se inyecta @Component para violar la Regla 1 de ArchUnit.
  */
+@Component
 public class Cuenta {
 
     private final Long id;
