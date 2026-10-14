@@ -2,6 +2,7 @@ package com.bankcore.backend.service.usecase;
 
 import com.bankcore.backend.domain.EstadoCuenta;
 import com.bankcore.backend.domain.model.Cuenta;
+import com.bankcore.backend.domain.model.Transaccion;
 import com.bankcore.backend.domain.port.CuentaRepositoryPort;
 import com.bankcore.backend.domain.port.TransaccionRepositoryPort;
 import com.bankcore.backend.dto.TransferenciaRequestDto;
@@ -149,7 +150,12 @@ class RealizarTransferenciaUseCaseTest {
 
             verify(cuentaRepositoryPort).guardar(origen);
             verify(cuentaRepositoryPort).guardar(destino);
-            verify(transaccionRepositoryPort, times(2)).guardar(any());
+
+            org.mockito.ArgumentCaptor<Transaccion> txCaptor = org.mockito.ArgumentCaptor.forClass(Transaccion.class);
+            verify(transaccionRepositoryPort, times(2)).guardar(txCaptor.capture());
+            assertThat(txCaptor.getAllValues().get(0).getConcepto()).contains("Pago de factura");
+            assertThat(txCaptor.getAllValues().get(1).getConcepto()).contains("Pago de factura");
+
             verify(idempotenciaService).registrarRespuesta(eq(key), eq("TRANSFERENCIA"), eq(200), any(TransferenciaResponseDto.class));
         }
 
@@ -171,6 +177,11 @@ class RealizarTransferenciaUseCaseTest {
             assertThat(resultado.estado()).isEqualTo("EXITOSA");
             assertThat(origen.getSaldo()).isEqualByComparingTo(new BigDecimal("400.00"));
             assertThat(destino.getSaldo()).isEqualByComparingTo(new BigDecimal("200.00"));
+
+            org.mockito.ArgumentCaptor<Transaccion> txCaptor = org.mockito.ArgumentCaptor.forClass(Transaccion.class);
+            verify(transaccionRepositoryPort, times(2)).guardar(txCaptor.capture());
+            assertThat(txCaptor.getAllValues().get(0).getConcepto()).contains("Transferencia interbancaria");
+            assertThat(txCaptor.getAllValues().get(1).getConcepto()).contains("Transferencia interbancaria");
 
             verify(idempotenciaService, never()).registrarRespuesta(anyString(), anyString(), anyInt(), any());
         }
