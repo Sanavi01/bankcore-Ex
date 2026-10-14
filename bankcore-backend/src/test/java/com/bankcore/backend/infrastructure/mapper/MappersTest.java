@@ -11,7 +11,10 @@ import com.bankcore.backend.dto.TarjetaResponseDto;
 import com.bankcore.backend.infrastructure.persistence.entity.CuentaJpaEntity;
 import com.bankcore.backend.infrastructure.persistence.entity.TarjetaJpaEntity;
 import com.bankcore.backend.infrastructure.persistence.entity.TransaccionJpaEntity;
+import com.bankcore.backend.domain.model.RegistroAuditoria;
+import com.bankcore.backend.infrastructure.persistence.entity.RegistroAuditoriaJpaEntity;
 import com.bankcore.backend.infrastructure.persistence.mapper.CuentaPersistenceMapper;
+import com.bankcore.backend.infrastructure.persistence.mapper.RegistroAuditoriaPersistenceMapper;
 import com.bankcore.backend.infrastructure.persistence.mapper.TarjetaPersistenceMapper;
 import com.bankcore.backend.infrastructure.persistence.mapper.TransaccionPersistenceMapper;
 import com.bankcore.backend.infrastructure.rest.mapper.CuentaRestMapper;
@@ -36,6 +39,7 @@ class MappersTest {
     private final CuentaPersistenceMapper cuentaPersistenceMapper = new CuentaPersistenceMapper();
     private final TarjetaPersistenceMapper tarjetaPersistenceMapper = new TarjetaPersistenceMapper();
     private final TransaccionPersistenceMapper transaccionPersistenceMapper = new TransaccionPersistenceMapper();
+    private final RegistroAuditoriaPersistenceMapper registroAuditoriaPersistenceMapper = new RegistroAuditoriaPersistenceMapper();
 
     private final CuentaRestMapper cuentaRestMapper = new CuentaRestMapper();
     private final TarjetaRestMapper tarjetaRestMapper = new TarjetaRestMapper();
@@ -154,6 +158,41 @@ class MappersTest {
             TransaccionJpaEntity reconvertida = transaccionPersistenceMapper.toEntity(domain, cuentaEntity);
             assertThat(reconvertida).isNotNull();
             assertThat(reconvertida.getCuenta().getId()).isEqualTo(88L);
+        }
+
+        @Test
+        @DisplayName("RegistroAuditoriaPersistenceMapper: maneja nulls y mapea correctamente en ambas direcciones")
+        void registroAuditoriaPersistenceMapperDebeManejarNullsYConversiones() {
+            assertThat(registroAuditoriaPersistenceMapper.toDomain(null)).isNull();
+            assertThat(registroAuditoriaPersistenceMapper.toEntity(null)).isNull();
+
+            RegistroAuditoriaJpaEntity entity = RegistroAuditoriaJpaEntity.builder()
+                    .id(1L)
+                    .idTransaccion("tx-001")
+                    .cuentaOrigen("1001")
+                    .cuentaDestino("1002")
+                    .monto(new BigDecimal("6000000.00"))
+                    .clasificacionRiesgo("ALERTA_AML_REVISION")
+                    .fechaEvento(LocalDateTime.now())
+                    .fechaAuditoria(LocalDateTime.now())
+                    .canal("RABBITMQ_ASYNC")
+                    .build();
+
+            RegistroAuditoria domain = registroAuditoriaPersistenceMapper.toDomain(entity);
+            assertThat(domain).isNotNull();
+            assertThat(domain.getId()).isEqualTo(1L);
+            assertThat(domain.getIdTransaccion()).isEqualTo("tx-001");
+            assertThat(domain.getCuentaOrigen()).isEqualTo("1001");
+            assertThat(domain.getCuentaDestino()).isEqualTo("1002");
+            assertThat(domain.getMonto()).isEqualByComparingTo(new BigDecimal("6000000.00"));
+            assertThat(domain.getClasificacionRiesgo()).isEqualTo("ALERTA_AML_REVISION");
+            assertThat(domain.getCanal()).isEqualTo("RABBITMQ_ASYNC");
+
+            RegistroAuditoriaJpaEntity reconvertida = registroAuditoriaPersistenceMapper.toEntity(domain);
+            assertThat(reconvertida).isNotNull();
+            assertThat(reconvertida.getId()).isEqualTo(1L);
+            assertThat(reconvertida.getIdTransaccion()).isEqualTo("tx-001");
+            assertThat(reconvertida.getClasificacionRiesgo()).isEqualTo("ALERTA_AML_REVISION");
         }
     }
 

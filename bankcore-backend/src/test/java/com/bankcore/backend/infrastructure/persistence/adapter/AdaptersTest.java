@@ -3,15 +3,19 @@ package com.bankcore.backend.infrastructure.persistence.adapter;
 import com.bankcore.backend.domain.EstadoCuenta;
 import com.bankcore.backend.domain.TipoMovimiento;
 import com.bankcore.backend.domain.model.Cuenta;
+import com.bankcore.backend.domain.model.RegistroAuditoria;
 import com.bankcore.backend.domain.model.Tarjeta;
 import com.bankcore.backend.domain.model.Transaccion;
 import com.bankcore.backend.infrastructure.persistence.entity.CuentaJpaEntity;
+import com.bankcore.backend.infrastructure.persistence.entity.RegistroAuditoriaJpaEntity;
 import com.bankcore.backend.infrastructure.persistence.entity.TarjetaJpaEntity;
 import com.bankcore.backend.infrastructure.persistence.entity.TransaccionJpaEntity;
 import com.bankcore.backend.infrastructure.persistence.mapper.CuentaPersistenceMapper;
+import com.bankcore.backend.infrastructure.persistence.mapper.RegistroAuditoriaPersistenceMapper;
 import com.bankcore.backend.infrastructure.persistence.mapper.TarjetaPersistenceMapper;
 import com.bankcore.backend.infrastructure.persistence.mapper.TransaccionPersistenceMapper;
 import com.bankcore.backend.infrastructure.persistence.repository.SpringDataCuentaRepository;
+import com.bankcore.backend.infrastructure.persistence.repository.SpringDataRegistroAuditoriaRepository;
 import com.bankcore.backend.infrastructure.persistence.repository.SpringDataTarjetaRepository;
 import com.bankcore.backend.infrastructure.persistence.repository.SpringDataTransaccionRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,6 +114,65 @@ class AdaptersTest {
             Optional<Transaccion> resultado = adapter.buscarPorId(1L);
 
             assertThat(resultado).isPresent().contains(domain);
+        }
+    }
+
+    @Nested
+    @DisplayName("RegistroAuditoriaRepositoryAdapter")
+    class RegistroAuditoriaAdapterRules {
+
+        @Mock
+        private SpringDataRegistroAuditoriaRepository repository;
+
+        @Mock
+        private RegistroAuditoriaPersistenceMapper mapper;
+
+        @InjectMocks
+        private RegistroAuditoriaRepositoryAdapter adapter;
+
+        @Test
+        @DisplayName("DADO registro de auditoría, CUANDO se guarda, ENTONCES mapea y persiste correctamente")
+        void debeGuardarRegistroAuditoria() {
+            RegistroAuditoria domain = new RegistroAuditoria(null, "tx-100", "001", "002", BigDecimal.TEN, "BAJO_RIESGO_CONFORME", LocalDateTime.now(), LocalDateTime.now(), "RABBITMQ_ASYNC");
+            RegistroAuditoriaJpaEntity entity = RegistroAuditoriaJpaEntity.builder().id(10L).idTransaccion("tx-100").build();
+            RegistroAuditoria domainGuardado = new RegistroAuditoria(10L, "tx-100", "001", "002", BigDecimal.TEN, "BAJO_RIESGO_CONFORME", LocalDateTime.now(), LocalDateTime.now(), "RABBITMQ_ASYNC");
+
+            when(mapper.toEntity(domain)).thenReturn(entity);
+            when(repository.save(entity)).thenReturn(entity);
+            when(mapper.toDomain(entity)).thenReturn(domainGuardado);
+
+            RegistroAuditoria resultado = adapter.guardar(domain);
+
+            assertThat(resultado).isEqualTo(domainGuardado);
+            verify(repository).save(entity);
+        }
+
+        @Test
+        @DisplayName("DADO idTransaccion existente, CUANDO se busca, ENTONCES retorna Optional con dominio")
+        void debeBuscarPorIdTransaccion() {
+            RegistroAuditoriaJpaEntity entity = RegistroAuditoriaJpaEntity.builder().id(10L).idTransaccion("tx-100").build();
+            RegistroAuditoria domain = new RegistroAuditoria(10L, "tx-100", "001", "002", BigDecimal.TEN, "BAJO_RIESGO_CONFORME", LocalDateTime.now(), LocalDateTime.now(), "RABBITMQ_ASYNC");
+
+            when(repository.findByIdTransaccion("tx-100")).thenReturn(Optional.of(entity));
+            when(mapper.toDomain(entity)).thenReturn(domain);
+
+            Optional<RegistroAuditoria> resultado = adapter.buscarPorIdTransaccion("tx-100");
+
+            assertThat(resultado).isPresent().contains(domain);
+        }
+
+        @Test
+        @DisplayName("DADO clasificacionRiesgo, CUANDO se busca, ENTONCES retorna lista de dominios mapeados")
+        void debeBuscarPorClasificacionRiesgo() {
+            RegistroAuditoriaJpaEntity entity = RegistroAuditoriaJpaEntity.builder().id(10L).clasificacionRiesgo("ALERTA_AML_REVISION").build();
+            RegistroAuditoria domain = new RegistroAuditoria(10L, "tx-100", "001", "002", BigDecimal.TEN, "ALERTA_AML_REVISION", LocalDateTime.now(), LocalDateTime.now(), "RABBITMQ_ASYNC");
+
+            when(repository.findByClasificacionRiesgo("ALERTA_AML_REVISION")).thenReturn(List.of(entity));
+            when(mapper.toDomain(entity)).thenReturn(domain);
+
+            List<RegistroAuditoria> resultado = adapter.buscarPorClasificacionRiesgo("ALERTA_AML_REVISION");
+
+            assertThat(resultado).hasSize(1).contains(domain);
         }
     }
 }

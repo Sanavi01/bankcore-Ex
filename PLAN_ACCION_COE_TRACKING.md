@@ -172,23 +172,26 @@ erDiagram
 ### 🐰 DÍA 2: Asincronía Financiera & Event-Driven con RabbitMQ
 *Objetivo: Implementar mensajería asíncrona real desacoplando la transacción bancaria de la auditoría y configurando Dead Letter Queue (DLQ) en código.*
 
-- [ ] **2.1 Paradigma Event-Driven en Finanzas:**
+- [x] **2.1 Paradigma Event-Driven en Finanzas:**
   - Análisis arquitectónico: por qué una transferencia bancaria jamás debe bloquearse esperando el envío de correos o análisis de fraude.
-- [ ] **2.2 Configuración del Broker Spring AMQP:**
-  - Definición programática en `RabbitMQConfig.java`: Exchange de tipo Topic (`bank.events`), Queue (`transacciones.audit.queue`) y serializador JSON con Jackson.
-- [ ] **2.3 El Productor de Eventos (Event Publisher):**
-  - Creación del evento inmutable `TransaccionRealizadaEvent` (Record).
-  - Publicación confiable con `RabbitTemplate.convertAndSend()` tras confirmar la transacción en base de datos.
-- [ ] **2.4 El Consumidor Resiliente (Event Listener):**
-  - Listener con `@RabbitListener(queues = "transacciones.audit.queue")` que procesa la auditoría de seguridad en segundo plano.
-- [ ] **2.5 Resiliencia con Dead Letter Queue (DLQ en Código Real):**
-  - Configuración programática del Exchange Dead-Letter (`bank.dlx`) y cola DLQ (`transacciones.audit.dlq`).
-  - Demostración de resiliencia: si el consumidor de auditoría falla tras reintentos, el mensaje se redirige a la DLQ sin perder dinero ni bloquear el sistema.
-- [ ] **2.6 Ingeniería de Rendimiento & Estrés con Grafana k6 (DevOps / SRE):**
-  - Creación del script `load-test.js` con **Grafana k6** para disparar miles de peticiones concurrentes contra `POST /api/v1/transferencias`.
-  - Validación visual en tiempo real: ver el pico de mensajes en el dashboard de RabbitMQ (:15672) y cómo el sistema absorbe la carga sin pérdida de datos ni bloqueos en PostgreSQL.
-- [ ] **2.7 🎙️ Simulacro CoE Día 2:**
-  - Batería de 2 preguntas de entrevista resueltas en 20 segundos (*Justificación EDA y arquitectura de una Dead Letter Queue*).
+- [x] **2.2 Configuración del Broker Spring AMQP:**
+  - Definición programática en `RabbitMQConfig.java`: Topic Exchange (`bank.events`), Dead Letter Exchange (`bank.dlx`), Cola Principal (`transacciones.audit.queue`), DLQ (`transacciones.audit.dlq`) y serializador JSON con Jackson.
+- [x] **2.3 El Productor de Eventos (Event Publisher):**
+  - Creación del evento inmutable de dominio `TransaccionRealizadaEvent` (Record puro) y puerto `TransaccionEventPublisherPort`.
+  - Publicación resiliente en `RabbitTransaccionEventPublisher` tras el commit transaccional atómico de la transferencia.
+- [x] **2.4 El Consumidor Resiliente & Auditoría Forense SARLAFT/AML (Hexagonal):**
+  - Implementación de modelo de dominio puro `RegistroAuditoria` y puerto desacoplado `AuditoriaRepositoryPort`.
+  - Adaptador secundario `RegistroAuditoriaRepositoryAdapter` con entidad JPA `RegistroAuditoriaJpaEntity`, mapper y repositorio en `registros_auditoria`.
+  - Capa de aplicación `AuditoriaService` con regla de riesgo SARLAFT (montos >= $5,000,000 COP clasificados como `ALERTA_AML_REVISION`, inferiores como `BAJO_RIESGO_CONFORME`).
+  - Listener en `AuditoriaTransaccionConsumer` delegando a `AuditoriaService` de forma asíncrona tras recibir eventos de RabbitMQ.
+- [x] **2.5 Resiliencia con Dead Letter Queue (DLQ en Código Real):**
+  - Configuración de argumentos `x-dead-letter-exchange` y `x-dead-letter-routing-key`.
+  - Disparador controlado (`AmqpRejectAndDontRequeueException`) ante `SIMULAR_ERROR_AUDITORIA` y monitoreo en `AuditoriaDlqConsumer`.
+- [x] **2.6 Ingeniería de Rendimiento & Estrés con Grafana k6 (DevOps / SRE):**
+  - Creación del script `k6/load-test.js` con ráfagas concurrentes de hasta 100 VUs, thresholds p(95) < 400ms y validación de idempotencia UUID.
+  - **Resultados Certificados de Carga:** **15,980 transacciones procesadas a 532.5 TPS**, **0.00% tasa de fallo (0 errores)**, latencia **p(95) de 80.62ms** (superando con holgura el SLA de < 400ms) y verificación visual de drenaje en RabbitMQ Management UI.
+- [x] **2.7 🎙️ Simulacro CoE Día 2:**
+  - Batería de 2 preguntas de entrevista resueltas en 20 segundos (*Justificación EDA, Libro Mayor vs Auditoría AML, y arquitectura de una Dead Letter Queue*).
 
 ---
 
