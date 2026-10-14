@@ -17,6 +17,8 @@ import com.bankcore.backend.infrastructure.persistence.mapper.CuentaPersistenceM
 import com.bankcore.backend.infrastructure.persistence.mapper.RegistroAuditoriaPersistenceMapper;
 import com.bankcore.backend.infrastructure.persistence.mapper.TarjetaPersistenceMapper;
 import com.bankcore.backend.infrastructure.persistence.mapper.TransaccionPersistenceMapper;
+import com.bankcore.backend.dto.RegistroAuditoriaResponseDto;
+import com.bankcore.backend.infrastructure.rest.mapper.AuditoriaRestMapper;
 import com.bankcore.backend.infrastructure.rest.mapper.CuentaRestMapper;
 import com.bankcore.backend.infrastructure.rest.mapper.MovimientoRestMapper;
 import com.bankcore.backend.infrastructure.rest.mapper.TarjetaRestMapper;
@@ -44,6 +46,7 @@ class MappersTest {
     private final CuentaRestMapper cuentaRestMapper = new CuentaRestMapper();
     private final TarjetaRestMapper tarjetaRestMapper = new TarjetaRestMapper();
     private final MovimientoRestMapper movimientoRestMapper = new MovimientoRestMapper();
+    private final AuditoriaRestMapper auditoriaRestMapper = new AuditoriaRestMapper();
 
     @Nested
     @DisplayName("Mappers de Persistencia")
@@ -256,6 +259,35 @@ class MappersTest {
             Transaccion sinTipo = new Transaccion(2L, 10L, BigDecimal.TEN, null, "Cajero", LocalDateTime.now(), "EXITOSA");
             MovimientoResponseDto dtoSinTipo = movimientoRestMapper.toResponseDto(sinTipo);
             assertThat(dtoSinTipo.tipo()).isNull();
+        }
+
+        @Test
+        @DisplayName("AuditoriaRestMapper: maneja nulls y mapea DTO completo")
+        void auditoriaRestMapperDebeManejarNullsYConversiones() {
+            assertThat(auditoriaRestMapper.toResponseDto(null)).isNull();
+
+            RegistroAuditoria domain = new RegistroAuditoria(
+                    1L,
+                    "tx-999",
+                    "001-ORIGEN",
+                    "002-DESTINO",
+                    new BigDecimal("1000.00"),
+                    "BAJO_RIESGO_CONFORME",
+                    LocalDateTime.of(2026, 10, 14, 10, 0),
+                    LocalDateTime.of(2026, 10, 14, 10, 1),
+                    "RABBITMQ_ASYNC"
+            );
+
+            RegistroAuditoriaResponseDto dto = auditoriaRestMapper.toResponseDto(domain);
+
+            assertThat(dto).isNotNull();
+            assertThat(dto.id()).isEqualTo(1L);
+            assertThat(dto.idTransaccion()).isEqualTo("tx-999");
+            assertThat(dto.cuentaOrigen()).isEqualTo("001-ORIGEN");
+            assertThat(dto.cuentaDestino()).isEqualTo("002-DESTINO");
+            assertThat(dto.monto()).isEqualByComparingTo(new BigDecimal("1000.00"));
+            assertThat(dto.clasificacionRiesgo()).isEqualTo("BAJO_RIESGO_CONFORME");
+            assertThat(dto.canal()).isEqualTo("RABBITMQ_ASYNC");
         }
     }
 }

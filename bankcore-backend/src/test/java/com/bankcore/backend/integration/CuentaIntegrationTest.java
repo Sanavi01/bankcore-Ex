@@ -1,6 +1,7 @@
 package com.bankcore.backend.integration;
 
 import com.bankcore.backend.dto.CrearCuentaRequestDto;
+import com.bankcore.backend.dto.DepositarRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -157,5 +158,66 @@ class CuentaIntegrationTest {
         // WHEN & THEN: Consulta endpoint de tarjetas asociadas a la cuenta
         mockMvc.perform(get("/api/v1/cuentas/{id}/tarjetas", id))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("DADO cuenta existente y monto válido, CUANDO se realiza depósito vía POST, ENTONCES abona saldo y responde 200 OK")
+    void debeDepositarFondosExitosamente() throws Exception {
+        // GIVEN: Una cuenta creada con saldo inicial 1000.00
+        CrearCuentaRequestDto request = new CrearCuentaRequestDto(
+                "001-9999-0006",
+                "Cliente Deposito Test",
+                new BigDecimal("1000.00")
+        );
+        String response = mockMvc.perform(post("/api/v1/cuentas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        Long id = objectMapper.readTree(response).get("id").asLong();
+
+        // WHEN: Se realiza un depósito de 500.00
+        DepositarRequestDto deposito = new DepositarRequestDto(
+                new BigDecimal("500.00"),
+                "Abono por transferencia interbancaria"
+        );
+
+        // THEN: Responde 200 OK con el saldo actualizado a 1500.00
+        mockMvc.perform(post("/api/v1/cuentas/{id}/depositar", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(deposito)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.saldo").value(1500.00));
+    }
+
+    @Test
+    @DisplayName("DADO monto inválido (negativo o cero), CUANDO se solicita depósito, ENTONCES rechaza con HTTP 400 Bad Request")
+    void debeRechazarDepositoConMontoInvalido() throws Exception {
+        // GIVEN: Cuenta existente
+        CrearCuentaRequestDto request = new CrearCuentaRequestDto(
+                "001-9999-0007",
+                "Cliente Deposito Invalido",
+                new BigDecimal("500.00")
+        );
+        String response = mockMvc.perform(post("/api/v1/cuentas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        Long id = objectMapper.readTree(response).get("id").asLong();
+
+        // WHEN & THEN: Falla validación Jakarta Bean Validation (@DecimalMin)
+        DepositarRequestDto depositoInvalido = new DepositarRequestDto(
+                new BigDecimal("-50.00"),
+                "Monto inválido"
+        );
+
+        mockMvc.perform(post("/api/v1/cuentas/{id}/depositar", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(depositoInvalido)))
+                .andExpect(status().isBadRequest());
     }
 }

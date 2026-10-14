@@ -95,6 +95,26 @@ class TarjetaServiceTest {
 
             verify(tarjetaRepositoryPort, never()).guardar(any());
         }
+
+        @Test
+        @DisplayName("DADO franquicias MASTERCARD, AMEX y DEFAULT, ENTONCES genera prefijos correspondientes")
+        void debeEmitirConDiferentesFranquicias() {
+            Cuenta cuenta = new Cuenta(1L, "001-ORIGEN", "SANTIAGO", new BigDecimal("1000.00"), EstadoCuenta.ACTIVA, LocalDateTime.now());
+            when(cuentaRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(cuenta));
+            when(tarjetaRepositoryPort.guardar(any(Tarjeta.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            // MASTERCARD
+            Tarjeta mc = tarjetaService.emitirTarjeta(new CrearTarjetaRequestDto(1L, "MASTERCARD", new BigDecimal("2000.00")));
+            assertThat(mc.getNumeroTarjeta()).startsWith("5412");
+
+            // AMEX
+            Tarjeta amex = tarjetaService.emitirTarjeta(new CrearTarjetaRequestDto(1L, "AMEX", new BigDecimal("3000.00")));
+            assertThat(amex.getNumeroTarjeta()).startsWith("3712");
+
+            // DEFAULT
+            Tarjeta defaultCard = tarjetaService.emitirTarjeta(new CrearTarjetaRequestDto(1L, "DINERS", new BigDecimal("4000.00")));
+            assertThat(defaultCard.getNumeroTarjeta()).startsWith("4000");
+        }
     }
 
     @Nested
@@ -172,6 +192,18 @@ class TarjetaServiceTest {
             when(tarjetaRepositoryPort.buscarPorId(99L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> tarjetaService.bloquearTarjeta(99L))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Tarjeta no encontrada con ID: 99");
+
+            verify(tarjetaRepositoryPort, never()).guardar(any());
+        }
+
+        @Test
+        @DisplayName("DADO ID inexistente al desbloquear, ENTONCES lanza IllegalArgumentException")
+        void debeFallarAlDesbloquearTarjetaInexistente() {
+            when(tarjetaRepositoryPort.buscarPorId(99L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> tarjetaService.desbloquearTarjeta(99L))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Tarjeta no encontrada con ID: 99");
 
