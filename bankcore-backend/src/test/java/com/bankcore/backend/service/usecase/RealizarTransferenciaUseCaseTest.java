@@ -1,9 +1,11 @@
 package com.bankcore.backend.service.usecase;
 
 import com.bankcore.backend.domain.EstadoCuenta;
+import com.bankcore.backend.domain.event.TransaccionRealizadaEvent;
 import com.bankcore.backend.domain.model.Cuenta;
 import com.bankcore.backend.domain.model.Transaccion;
 import com.bankcore.backend.domain.port.CuentaRepositoryPort;
+import com.bankcore.backend.domain.port.TransaccionEventPublisherPort;
 import com.bankcore.backend.domain.port.TransaccionRepositoryPort;
 import com.bankcore.backend.dto.TransferenciaRequestDto;
 import com.bankcore.backend.dto.TransferenciaResponseDto;
@@ -41,11 +43,19 @@ class RealizarTransferenciaUseCaseTest {
     @Mock
     private IdempotenciaService idempotenciaService;
 
+    @Mock
+    private TransaccionEventPublisherPort transaccionEventPublisherPort;
+
     private RealizarTransferenciaUseCase useCase;
 
     @BeforeEach
     void setUp() {
-        useCase = new RealizarTransferenciaUseCase(cuentaRepositoryPort, transaccionRepositoryPort, idempotenciaService);
+        useCase = new RealizarTransferenciaUseCase(
+                cuentaRepositoryPort,
+                transaccionRepositoryPort,
+                idempotenciaService,
+                transaccionEventPublisherPort
+        );
     }
 
     @Nested
@@ -157,6 +167,7 @@ class RealizarTransferenciaUseCaseTest {
             assertThat(txCaptor.getAllValues().get(1).getConcepto()).contains("Pago de factura");
 
             verify(idempotenciaService).registrarRespuesta(eq(key), eq("TRANSFERENCIA"), eq(200), any(TransferenciaResponseDto.class));
+            verify(transaccionEventPublisherPort).publicarTransaccionExitosa(any(TransaccionRealizadaEvent.class));
         }
 
         @Test
@@ -184,6 +195,7 @@ class RealizarTransferenciaUseCaseTest {
             assertThat(txCaptor.getAllValues().get(1).getConcepto()).contains("Transferencia interbancaria");
 
             verify(idempotenciaService, never()).registrarRespuesta(anyString(), anyString(), anyInt(), any());
+            verify(transaccionEventPublisherPort).publicarTransaccionExitosa(any(TransaccionRealizadaEvent.class));
         }
 
         @Test
@@ -209,6 +221,7 @@ class RealizarTransferenciaUseCaseTest {
             // Probar también con clave de idempotencia en blanco ("   ")
             useCase.ejecutar("   ", request);
             verify(idempotenciaService, never()).registrarRespuesta(anyString(), anyString(), anyInt(), any());
+            verify(transaccionEventPublisherPort, times(2)).publicarTransaccionExitosa(any(TransaccionRealizadaEvent.class));
         }
     }
 }

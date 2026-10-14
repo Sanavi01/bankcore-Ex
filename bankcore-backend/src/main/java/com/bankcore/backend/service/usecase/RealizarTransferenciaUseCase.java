@@ -3,7 +3,9 @@ package com.bankcore.backend.service.usecase;
 import com.bankcore.backend.domain.TipoMovimiento;
 import com.bankcore.backend.domain.model.Cuenta;
 import com.bankcore.backend.domain.model.Transaccion;
+import com.bankcore.backend.domain.event.TransaccionRealizadaEvent;
 import com.bankcore.backend.domain.port.CuentaRepositoryPort;
+import com.bankcore.backend.domain.port.TransaccionEventPublisherPort;
 import com.bankcore.backend.domain.port.TransaccionRepositoryPort;
 import com.bankcore.backend.dto.TransferenciaRequestDto;
 import com.bankcore.backend.dto.TransferenciaResponseDto;
@@ -27,6 +29,7 @@ public class RealizarTransferenciaUseCase {
     private final CuentaRepositoryPort cuentaRepositoryPort;
     private final TransaccionRepositoryPort transaccionRepositoryPort;
     private final IdempotenciaService idempotenciaService;
+    private final TransaccionEventPublisherPort transaccionEventPublisherPort;
 
     @Transactional(rollbackFor = Exception.class)
     public TransferenciaResponseDto ejecutar(TransferenciaRequestDto request) {
@@ -108,6 +111,19 @@ public class RealizarTransferenciaUseCase {
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
             idempotenciaService.registrarRespuesta(idempotencyKey, "TRANSFERENCIA", 200, respuesta);
         }
+
+        // 8. Publicación Asíncrona del Evento de Dominio (EDA / RabbitMQ)
+        TransaccionRealizadaEvent evento = new TransaccionRealizadaEvent(
+                respuesta.idTransaccion(),
+                request.cuentaOrigen(),
+                request.cuentaDestino(),
+                request.monto(),
+                "TRANSFERENCIA",
+                respuesta.fechaHora(),
+                "EXITOSA",
+                concepto
+        );
+        transaccionEventPublisherPort.publicarTransaccionExitosa(evento);
 
         return respuesta;
     }
