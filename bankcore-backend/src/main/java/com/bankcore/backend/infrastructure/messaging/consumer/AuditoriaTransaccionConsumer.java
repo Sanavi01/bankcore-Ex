@@ -2,6 +2,8 @@ package com.bankcore.backend.infrastructure.messaging.consumer;
 
 import com.bankcore.backend.config.RabbitMQConfig;
 import com.bankcore.backend.domain.event.TransaccionRealizadaEvent;
+import com.bankcore.backend.service.AuditoriaService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -9,7 +11,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Consumidor Asíncrono de Eventos de Auditoría (Spring AMQP Listener).
- * Procesa en segundo plano la auditoría y análisis de fraude de cada transferencia bancaria.
+ * Procesa en segundo plano la auditoría y análisis de fraude de cada transferencia bancaria
+ * delegando la evaluación de riesgo y persistencia a AuditoriaService.
  * 
  * Resiliencia con DLQ:
  * Si ocurre un error fatal o irrecuperable, lanza AmqpRejectAndDontRequeueException,
@@ -17,9 +20,12 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AuditoriaTransaccionConsumer {
 
     public static final String ERROR_SIMULATION_KEYWORD = "SIMULAR_ERROR_AUDITORIA";
+
+    private final AuditoriaService auditoriaService;
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_AUDIT)
     public void procesarAuditoriaTransaccion(TransaccionRealizadaEvent evento) {
@@ -33,7 +39,8 @@ public class AuditoriaTransaccionConsumer {
             throw new AmqpRejectAndDontRequeueException("Fallo crítico en procesamiento de auditoría. Derivado a DLQ.");
         }
 
-        // Procesamiento normal de auditoría contable
+        // Persistencia asíncrona de auditoría forense y cumplimiento SARLAFT/AML
+        auditoriaService.registrarAuditoria(evento);
         log.info("RabbitMQ Consumer: Auditoría y trazabilidad registradas exitosamente para transacción [{}]", evento.idTransaccion());
     }
 }

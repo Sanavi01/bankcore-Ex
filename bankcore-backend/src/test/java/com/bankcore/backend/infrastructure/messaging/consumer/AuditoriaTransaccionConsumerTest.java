@@ -1,28 +1,37 @@
 package com.bankcore.backend.infrastructure.messaging.consumer;
 
 import com.bankcore.backend.domain.event.TransaccionRealizadaEvent;
+import com.bankcore.backend.service.AuditoriaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("Messaging Consumer: AuditoriaTransaccionConsumer")
 class AuditoriaTransaccionConsumerTest {
+
+    @Mock
+    private AuditoriaService auditoriaService;
 
     private AuditoriaTransaccionConsumer consumer;
 
     @BeforeEach
     void setUp() {
-        consumer = new AuditoriaTransaccionConsumer();
+        consumer = new AuditoriaTransaccionConsumer(auditoriaService);
     }
 
     @Test
-    @DisplayName("DADO un evento válido con concepto normal, ENTONCES procesa la auditoría exitosamente")
+    @DisplayName("DADO un evento válido con concepto normal, ENTONCES procesa la auditoría y delega a AuditoriaService")
     void debeProcesarAuditoriaExitosamente() {
         TransaccionRealizadaEvent evento = new TransaccionRealizadaEvent(
                 "tx-100",
@@ -36,10 +45,11 @@ class AuditoriaTransaccionConsumerTest {
         );
 
         assertThatNoException().isThrownBy(() -> consumer.procesarAuditoriaTransaccion(evento));
+        verify(auditoriaService).registrarAuditoria(evento);
     }
 
     @Test
-    @DisplayName("DADO un evento con concepto nulo, ENTONCES procesa la auditoría sin errores")
+    @DisplayName("DADO un evento con concepto nulo, ENTONCES procesa la auditoría y delega a AuditoriaService")
     void debeProcesarAuditoriaConConceptoNulo() {
         TransaccionRealizadaEvent evento = new TransaccionRealizadaEvent(
                 "tx-101",
@@ -53,10 +63,11 @@ class AuditoriaTransaccionConsumerTest {
         );
 
         assertThatNoException().isThrownBy(() -> consumer.procesarAuditoriaTransaccion(evento));
+        verify(auditoriaService).registrarAuditoria(evento);
     }
 
     @Test
-    @DisplayName("DADO un evento con keyword de simulación de fallo, ENTONCES lanza AmqpRejectAndDontRequeueException para DLQ")
+    @DisplayName("DADO un evento con keyword de simulación de fallo, ENTONCES lanza AmqpRejectAndDontRequeueException y no delega")
     void debeLanzarExcepcionParaRedirigirADlq() {
         TransaccionRealizadaEvent evento = new TransaccionRealizadaEvent(
                 "tx-999",
@@ -72,5 +83,7 @@ class AuditoriaTransaccionConsumerTest {
         assertThatThrownBy(() -> consumer.procesarAuditoriaTransaccion(evento))
                 .isInstanceOf(AmqpRejectAndDontRequeueException.class)
                 .hasMessageContaining("Fallo crítico en procesamiento de auditoría");
+
+        verify(auditoriaService, never()).registrarAuditoria(any());
     }
 }
