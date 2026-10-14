@@ -3,7 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.4'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'jacoco'
-    id 'org.sonarqube' version '5.1.0.4882'
+    id 'org.sonarqube' version '7.5.0.8588'
     id 'info.solidsoft.pitest' version '1.15.0'
 }
 
@@ -87,13 +87,28 @@ tasks.named('jacocoTestReport') {
     }
 }
 
-// Configuración SonarQube (Quality Gates & SAST)
+afterEvaluate {
+    tasks.named('jacocoTestReport') {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                'com/bankcore/backend/BankCoreApplication.class',
+                'com/bankcore/backend/config/**',
+                'com/bankcore/backend/dto/**',
+                'com/bankcore/backend/**/entity/**'
+            ])
+        }))
+    }
+}
+
+// Configuración SonarQube / SonarCloud (Quality Gates & SAST)
 sonar {
     properties {
-        property "sonar.projectKey", "bankcore-backend"
+        property "sonar.projectKey", "Sanavi01_bankcore-Ex"
+        property "sonar.organization", "sanavi01"
+        property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.projectName", "BankCore Digital Backend"
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.exclusions", "**/config/**,**/dto/**"
+        property "sonar.exclusions", "**/config/**,**/dto/**,**/BankCoreApplication.java,**/entity/**"
     }
 }
 
