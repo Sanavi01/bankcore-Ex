@@ -160,12 +160,12 @@ erDiagram
   - Configuración de `springdoc-openapi` y verificación visual de endpoints en `http://localhost:8080/swagger-ui.html`.
 - [x] **1.14 🎙️ Simulacro CoE Día 1:**
   - Batería de 3 preguntas de entrevista resueltas en 20 segundos (*Inyección por constructor, DTOs vs Entidades, Idempotencia*).
-- [x] **1.15 Blindaje de Calidad, Gobernanza & DevSecOps (JaCoCo, ArchUnit, PITest, SonarQube):**
+- [x] **1.15 Blindaje de Calidad, Gobernanza & DevSecOps (JaCoCo, ArchUnit, PITest, SonarCloud):**
   - Pruebas de integración BDD modulares (`CuentaIntegrationTest`, `TransferenciaIntegrationTest`, `TarjetaIntegrationTest`) con aislamiento transaccional y semántica *Given-When-Then*.
   - **ArchUnit (Fitness Functions):** 5 reglas que auditan la pureza del dominio Hexagonal, DIP en servicios y prohibición de `@Autowired` por campo.
-  - **JaCoCo:** Cobertura de instrucciones del 81% (1,443 de 1,760 instrucciones cubiertas en 35 clases) superando Quality Gates corporativos.
-  - **PITest (Mutation Testing):** 88 mutaciones generadas, 53 mutantes eliminados y Test Strength de hasta el 94% en servicios clave.
-  - **SonarQube:** Configuración de Quality Gate estático enlazado a los reportes de cobertura XML.
+  - **JaCoCo:** **100% de Cobertura en todas las métricas** (1,478/1,478 instrucciones, 106/106 ramas, 372/372 líneas, 98/98 métodos, 23/23 clases) con bytecode Lombok excluido (`lombok.config`).
+  - **PITest (Mutation Testing):** **100% Mutation Score** (88/88 mutantes aniquilados, 0 mutantes sobrevivientes en `domain.model`, `service`, y `service.usecase`).
+  - **SonarCloud:** Integración completa en CI de GitHub Actions, **100% de cobertura en 372 líneas**, **0.0% duplicaciones**, **Rating A en Seguridad y Mantenibilidad**, y resolución del Blocker Bug de proxy bypass Spring AOP (`java:S2229`).
 
 ---
 
