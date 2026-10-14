@@ -28,6 +28,7 @@ public class RealizarTransferenciaUseCase {
     private final TransaccionRepositoryPort transaccionRepositoryPort;
     private final IdempotenciaService idempotenciaService;
 
+    @Transactional(rollbackFor = Exception.class)
     public TransferenciaResponseDto ejecutar(TransferenciaRequestDto request) {
         return ejecutar(null, request);
     }
