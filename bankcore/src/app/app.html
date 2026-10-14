@@ -12,11 +12,11 @@
             {{ configBancaria.nombreBanco }} ({{ configBancaria.versionApi }})
           </span>
         </div>
-        <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">ES91-2100-0418-45-9921448102</p>
+        <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">{{ cuenta().numeroCuenta }}</p>
       </div>
       <div style="text-align: right;">
         <span style="font-size: 0.8rem; text-transform: uppercase; color: #d4af37; letter-spacing: 1px;">Saldo Total</span>
-        <div style="font-size: 2rem; font-weight: 800; color: #ffffff;">$ 19,850.50 <small style="font-size: 0.9rem; font-weight: 400; color: #94a3b8;">USD</small></div>
+        <div style="font-size: 2rem; font-weight: 800; color: #ffffff;">{{ cuenta().saldo | currency:'USD':'symbol':'1.2-2' }}</div>
       </div>
     </div>
   </app-bank-card>

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { MovimientosTable } from './movimientos-table';
 
 describe('MovimientosTable', () => {
@@ -13,6 +12,7 @@ describe('MovimientosTable', () => {
 
     fixture = TestBed.createComponent(MovimientosTable);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('transacciones', []);
     await fixture.whenStable();
   });
 

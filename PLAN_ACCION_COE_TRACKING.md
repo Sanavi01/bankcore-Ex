@@ -198,11 +198,11 @@ erDiagram
 ### 🔗 DÍA 3: Integración Fullstack (Angular ↔ Spring Boot) & Estrategia de Testing
 *Objetivo: Conectar el frontend existente con el backend real aplicando los Módulos 2, 3, 4 y 5 de Angular con pruebas automatizadas.*
 
-- [ ] **3.1 Consumo HTTP Reactivo en Angular (Módulo 2 Angular):**
+- [x] **3.1 Consumo HTTP Reactivo en Angular (Módulo 2 Angular):**
   - Configuración de CORS en Spring Boot (`@CrossOrigin` en `WebConfig`).
-  - Uso de `provideHttpClient()` y consumo de endpoints REST en `CuentasService`.
-- [ ] **3.2 Puente Reactivo RxJS a Signals (Módulo 2 Angular):**
-  - Transformación reactiva de observables a señales con `toSignal()` para vincular datos vivos a los componentes.
+  - Uso de `provideHttpClient(withFetch())` y consumo de endpoints REST en `CuentasService`.
+- [x] **3.2 Puente Reactivo RxJS a Signals (Módulo 2 Angular):**
+  - Transformación reactiva de observables a señales con `toSignal()` para vincular datos vivos a los componentes con zero memory leaks.
 - [ ] **3.3 Formularios Reactivos Bancarios (Módulo 3 Angular):**
   - Formulario de transferencias con `ReactiveFormsModule` y `FormGroup` fuertemente tipado.
   - Validaciones síncronas (`Validators.required`, `Validators.min(1)`) y reactividad en tiempo real.
