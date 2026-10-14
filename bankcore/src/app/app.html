@@ -88,6 +88,25 @@
     }
   </section>
 
+  <!-- ======================================================== -->
+  <!-- SECCIÓN 3: FORMULARIO REACTIVO DE TRANSFERENCIAS (Hito 3.3) -->
+  <!-- ======================================================== -->
+  <section style="margin-top: 3.5rem; padding-top: 2rem; border-top: 2px dashed #e2e8f0;">
+    <app-transferencia-form
+      [cuentaOrigenDefault]="cuenta().numeroCuenta"
+      [saldoDisponible]="cuenta().saldo"
+      (transferenciaExitosa)="onTransferenciaExitosa($event)">
+    </app-transferencia-form>
+
+    @if (ultimaTransferencia(); as tx) {
+      <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1.25rem; margin-top: 1rem; color: #166534; font-size: 0.9rem;">
+        <strong>🎉 Notificación Global:</strong> Transferencia #{{ tx.idTransaccion }} por 
+        <strong>${{ tx.monto | currency:'USD':'symbol':'1.2-2' }}</strong> procesada exitosamente hacia 
+        <strong>{{ tx.cuentaDestino }}</strong>.
+      </div>
+    }
+  </section>
+
 </main>
 
 <router-outlet></router-outlet>

@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { App } from './app';
 import { CuentasService } from './core/services/cuentas.service';
 import { TarjetasService } from './core/services/tarjetas.service';
+import { TransferenciasService } from './core/services/transferencias.service';
 
 describe('App', () => {
   const mockCuentasService = {
@@ -38,12 +39,26 @@ describe('App', () => {
     })
   };
 
+  const mockTransferenciasService = {
+    realizarTransferencia: () => of({
+      idTransaccion: 'TX-123',
+      cuentaOrigen: '001-ORIGEN',
+      cuentaDestino: '002-DESTINO',
+      monto: 100,
+      estado: 'EXITOSA',
+      fechaHora: '2026-10-14T04:00:00Z',
+      mensaje: 'OK'
+    }),
+    validarLimiteTransferencia: () => true
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
         { provide: CuentasService, useValue: mockCuentasService },
-        { provide: TarjetasService, useValue: mockTarjetasService }
+        { provide: TarjetasService, useValue: mockTarjetasService },
+        { provide: TransferenciasService, useValue: mockTransferenciasService }
       ]
     }).compileComponents();
   });

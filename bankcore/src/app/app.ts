@@ -5,15 +5,17 @@ import { Header } from './shared/components/header/header';
 import { BankCard } from './shared/components/bank-card/bank-card';
 import { MovimientosTable } from './shared/components/movimientos-table/movimientos-table';
 import { TarjetasList } from './shared/components/tarjetas-list/tarjetas-list';
+import { TransferenciaFormComponent } from './features/transferencias/transferencia-form/transferencia-form';
 import { CurrencyPipe } from '@angular/common';
 import { Transaccion } from './core/models/transaccion.model';
 import { TarjetaBancaria } from './core/models/tarjeta.model';
+import { TransferenciaResponse } from './core/models/transferencia.model';
 import { CuentasService } from './core/services/cuentas.service';
 import { TarjetasService } from './core/services/tarjetas.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, BankCard, MovimientosTable, TarjetasList, CurrencyPipe],
+  imports: [RouterOutlet, Header, BankCard, MovimientosTable, TarjetasList, TransferenciaFormComponent, CurrencyPipe],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -80,5 +82,12 @@ export class App {
 
   pagarTarjeta(tarjeta: TarjetaBancaria): void {
     this.mensajeAccionTarjeta.set(`💳 Redirigiendo a la pasarela de pago para la tarjeta ${tarjeta.numeroEnmascarado}.`);
+  }
+
+  // Notificación reactiva tras transferencia exitosa
+  readonly ultimaTransferencia = signal<TransferenciaResponse | null>(null);
+
+  onTransferenciaExitosa(tx: TransferenciaResponse): void {
+    this.ultimaTransferencia.set(tx);
   }
 }

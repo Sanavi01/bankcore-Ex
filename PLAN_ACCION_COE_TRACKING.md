@@ -203,9 +203,11 @@ erDiagram
   - Uso de `provideHttpClient(withFetch())` y consumo de endpoints REST en `CuentasService`.
 - [x] **3.2 Puente Reactivo RxJS a Signals (Módulo 2 Angular):**
   - Transformación reactiva de observables a señales con `toSignal()` para vincular datos vivos a los componentes con zero memory leaks.
-- [ ] **3.3 Formularios Reactivos Bancarios (Módulo 3 Angular):**
-  - Formulario de transferencias con `ReactiveFormsModule` y `FormGroup` fuertemente tipado.
-  - Validaciones síncronas (`Validators.required`, `Validators.min(1)`) y reactividad en tiempo real.
+- [x] **3.3 Formularios Reactivos Bancarios (Módulo 3 Angular):**
+  - Formulario de transferencias con `ReactiveFormsModule` y `FormGroup` fuertemente tipado (`TransferenciaFormControls`).
+  - Validaciones síncronas (`Validators.required`, `Validators.min(1)`, `Validators.maxLength(100)`).
+  - Validador cruzado personalizado (Cross-field validator): `validarCuentasDiferentes` previniendo transferencias a la misma cuenta (`cuentasIdenticas`).
+  - Batería de 8 pruebas unitarias con Vitest/TestBed cubriendo instanciación, validación síncrona, regla cruzada y despacho seguro al servicio.
 - [ ] **3.4 Interceptor HTTP de Seguridad e Idempotencia (Módulo 4 Angular):**
   - Creación de un interceptor funcional con `HttpInterceptorFn` para adjuntar el header bancario `Idempotency-Key` (UUID) en cada transacción.
 - [ ] **3.5 Optimización de Rendimiento con OnPush (Módulo 5 Angular):**
