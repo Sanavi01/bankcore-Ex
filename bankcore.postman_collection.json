@@ -59,7 +59,75 @@
       }
     },
     {
-      "name": "4. Transferencias - Ejecutar Transferencia Atómica (con Idempotencia)",
+      "name": "4. Cuentas - Depositar Fondos Directos (Cash-In)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"monto\": 1500.00,\n  \"concepto\": \"Abono extraordinario nómina o ventanilla\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/cuentas/1/depositar",
+          "host": ["{{baseUrl}}"],
+          "path": ["cuentas", "1", "depositar"]
+        },
+        "description": "Acredita saldo directamente a la cuenta y genera un registro contable de tipo DEPOSITO."
+      }
+    },
+    {
+      "name": "5. Tarjetas - Emitir y Vincular Nueva Tarjeta",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cuentaId\": 1,\n  \"franquicia\": \"VISA\",\n  \"cupoTotal\": 20000.00\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tarjetas",
+          "host": ["{{baseUrl}}"],
+          "path": ["tarjetas"]
+        },
+        "description": "Emite una nueva tarjeta plástica con número determinista, fecha de vencimiento a 5 años y CVV criptográfico."
+      }
+    },
+    {
+      "name": "6. Tarjetas - Bloquear Tarjeta Preventivamente (Idempotente PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tarjetas/1/bloquear",
+          "host": ["{{baseUrl}}"],
+          "path": ["tarjetas", "1", "bloquear"]
+        },
+        "description": "Bloquea de forma segura e idempotente una tarjeta de crédito por alerta preventiva."
+      }
+    },
+    {
+      "name": "7. Tarjetas - Desbloquear / Reactivar Tarjeta (Idempotente PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tarjetas/1/desbloquear",
+          "host": ["{{baseUrl}}"],
+          "path": ["tarjetas", "1", "desbloquear"]
+        },
+        "description": "Restaura el estado de la tarjeta a ACTIVA completando el ciclo de vida de la entidad de dominio."
+      }
+    },
+    {
+      "name": "8. Transferencias - Ejecutar Transferencia Atómica (con Idempotencia)",
       "request": {
         "method": "POST",
         "header": [
@@ -79,7 +147,7 @@
       }
     },
     {
-      "name": "5. Transferencias - Reintento con Misma Idempotency-Key (Blindaje Antifraude)",
+      "name": "9. Transferencias - Reintento con Misma Idempotency-Key (Blindaje Antifraude)",
       "request": {
         "method": "POST",
         "header": [
@@ -99,22 +167,22 @@
       }
     },
     {
-      "name": "6. Tarjetas - Bloquear Tarjeta Preventivamente (Idempotente PUT)",
+      "name": "10. Auditoría AML - Consultar Registro por ID Transacción (RabbitMQ)",
       "request": {
-        "method": "PUT",
+        "method": "GET",
         "header": [
           { "key": "Accept", "value": "application/json" }
         ],
         "url": {
-          "raw": "{{baseUrl}}/tarjetas/1/bloquear",
+          "raw": "{{baseUrl}}/auditoria/transacciones/f47ac10b-58cc-4372-a567-0e02b2c3d479",
           "host": ["{{baseUrl}}"],
-          "path": ["tarjetas", "1", "bloquear"]
+          "path": ["auditoria", "transacciones", "f47ac10b-58cc-4372-a567-0e02b2c3d479"]
         },
-        "description": "Bloquea de forma segura e idempotente una tarjeta de crédito por alerta preventiva."
+        "description": "Verifica que el consumidor de RabbitMQ persistió la auditoría legal con su clasificación de riesgo AML."
       }
     },
     {
-      "name": "7. Healthcheck & Métricas Actuator",
+      "name": "11. Healthcheck & Métricas Actuator",
       "request": {
         "method": "GET",
         "header": [

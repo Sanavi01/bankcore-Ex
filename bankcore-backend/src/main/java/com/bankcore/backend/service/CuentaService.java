@@ -59,4 +59,27 @@ public class CuentaService {
         obtenerPorId(id); // Valida que la cuenta exista
         return transaccionRepositoryPort.buscarPorCuentaId(id);
     }
+
+    /**
+     * Realiza un depósito o abono directo de fondos en la cuenta bancaria.
+     */
+    @Transactional
+    public Cuenta depositar(Long id, BigDecimal monto, String concepto) {
+        Cuenta cuenta = obtenerPorId(id);
+        cuenta.acreditar(monto);
+        Cuenta cuentaGuardada = cuentaRepositoryPort.guardar(cuenta);
+
+        Transaccion movimiento = new Transaccion(
+                null,
+                cuenta.getId(),
+                monto,
+                com.bankcore.backend.domain.TipoMovimiento.DEPOSITO,
+                concepto != null && !concepto.isBlank() ? concepto : "Depósito directo de fondos",
+                java.time.LocalDateTime.now(),
+                "EXITOSA"
+        );
+        transaccionRepositoryPort.guardar(movimiento);
+
+        return cuentaGuardada;
+    }
 }

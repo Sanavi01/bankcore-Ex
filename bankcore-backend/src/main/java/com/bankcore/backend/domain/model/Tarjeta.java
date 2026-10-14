@@ -56,6 +56,20 @@ public class Tarjeta {
         this.estado = EstadoCuenta.BLOQUEADA;
     }
 
+    // Comportamiento de negocio: Desbloqueo / Reactivación de tarjeta
+    public void desbloquear() {
+        if (this.estado == EstadoCuenta.ACTIVA) {
+            throw new IllegalStateException("La tarjeta ya se encuentra activa");
+        }
+        this.estado = EstadoCuenta.ACTIVA;
+    }
+
+    // Factory method de dominio para emisión de nuevas tarjetas
+    public static Tarjeta emitir(String numeroTarjeta, String franquicia, String fechaVencimiento, 
+                                 String cvv, BigDecimal cupoTotal, Long cuentaId) {
+        return new Tarjeta(null, numeroTarjeta, franquicia, fechaVencimiento, cvv, cupoTotal, cupoTotal, EstadoCuenta.ACTIVA, cuentaId);
+    }
+
     public Long getId() { return id; }
     public String getNumeroTarjeta() { return numeroTarjeta; }
     public String getFranquicia() { return franquicia; }

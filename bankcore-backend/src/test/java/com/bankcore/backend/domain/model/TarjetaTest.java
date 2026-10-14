@@ -201,4 +201,59 @@ class TarjetaTest {
                     .hasMessageContaining("La tarjeta ya se encuentra bloqueada");
         }
     }
+
+    @Nested
+    @DisplayName("Reglas de Negocio: desbloquear")
+    class DesbloquearRules {
+
+        @Test
+        @DisplayName("DADO tarjeta bloqueada, ENTONCES cambia el estado a ACTIVA")
+        void debeDesbloquearTarjetaBloqueada() {
+            Tarjeta tarjeta = new Tarjeta(
+                    1L, "4532-XXXX-XXXX-1234", "VISA", "12/28", "123",
+                    new BigDecimal("5000.00"), new BigDecimal("3000.00"), EstadoCuenta.BLOQUEADA, 10L
+            );
+
+            tarjeta.desbloquear();
+
+            assertThat(tarjeta.getEstado()).isEqualTo(EstadoCuenta.ACTIVA);
+        }
+
+        @Test
+        @DisplayName("DADO tarjeta ya activa, ENTONCES lanza IllegalStateException")
+        void debeRechazarDesbloqueoSiYaEstabaActiva() {
+            Tarjeta tarjeta = new Tarjeta(
+                    1L, "4532-XXXX-XXXX-1234", "VISA", "12/28", "123",
+                    new BigDecimal("5000.00"), new BigDecimal("3000.00"), EstadoCuenta.ACTIVA, 10L
+            );
+
+            assertThatThrownBy(tarjeta::desbloquear)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("La tarjeta ya se encuentra activa");
+        }
+    }
+
+    @Nested
+    @DisplayName("Factory Method: emitir")
+    class EmitirRules {
+
+        @Test
+        @DisplayName("DADO parámetros válidos, ENTONCES crea tarjeta activa con cupo disponible igual a cupo total")
+        void debeEmitirTarjetaCorrectamente() {
+            Tarjeta emitida = Tarjeta.emitir(
+                    "4532-1111-2222-3333", "VISA", "10/30", "999", new BigDecimal("4500.00"), 5L
+            );
+
+            assertThat(emitida).isNotNull();
+            assertThat(emitida.getId()).isNull();
+            assertThat(emitida.getNumeroTarjeta()).isEqualTo("4532-1111-2222-3333");
+            assertThat(emitida.getFranquicia()).isEqualTo("VISA");
+            assertThat(emitida.getFechaVencimiento()).isEqualTo("10/30");
+            assertThat(emitida.getCvv()).isEqualTo("999");
+            assertThat(emitida.getCupoTotal()).isEqualByComparingTo(new BigDecimal("4500.00"));
+            assertThat(emitida.getCupoDisponible()).isEqualByComparingTo(new BigDecimal("4500.00"));
+            assertThat(emitida.getEstado()).isEqualTo(EstadoCuenta.ACTIVA);
+            assertThat(emitida.getCuentaId()).isEqualTo(5L);
+        }
+    }
 }

@@ -154,5 +154,32 @@ class CuentaServiceTest {
 
             verifyNoInteractions(transaccionRepositoryPort);
         }
+
+        @Test
+        @DisplayName("DADO cuenta existente, CUANDO se realiza depósito, ENTONCES acredita saldo y guarda movimiento")
+        void debeDepositarExitosamente() {
+            Cuenta cuenta = new Cuenta(1L, "001-TEST", "Titular", new BigDecimal("100.00"), EstadoCuenta.ACTIVA, LocalDateTime.now());
+            when(cuentaRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(cuenta));
+            when(cuentaRepositoryPort.guardar(any(Cuenta.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Cuenta actualizada = cuentaService.depositar(1L, new BigDecimal("50.00"), "Abono nómina");
+
+            assertThat(actualizada.getSaldo()).isEqualByComparingTo(new BigDecimal("150.00"));
+            verify(cuentaRepositoryPort).guardar(any(Cuenta.class));
+            verify(transaccionRepositoryPort).guardar(any(Transaccion.class));
+        }
+
+        @Test
+        @DisplayName("DADO concepto nulo o vacío, CUANDO se deposita, ENTONCES asigna concepto por defecto")
+        void debeDepositarConConceptoPorDefecto() {
+            Cuenta cuenta = new Cuenta(1L, "001-TEST", "Titular", new BigDecimal("100.00"), EstadoCuenta.ACTIVA, LocalDateTime.now());
+            when(cuentaRepositoryPort.buscarPorId(1L)).thenReturn(Optional.of(cuenta));
+            when(cuentaRepositoryPort.guardar(any(Cuenta.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Cuenta actualizada = cuentaService.depositar(1L, new BigDecimal("20.00"), null);
+
+            assertThat(actualizada.getSaldo()).isEqualByComparingTo(new BigDecimal("120.00"));
+            verify(transaccionRepositoryPort, atLeastOnce()).guardar(any(Transaccion.class));
+        }
     }
 }

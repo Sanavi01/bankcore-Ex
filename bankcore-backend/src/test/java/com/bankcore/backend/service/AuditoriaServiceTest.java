@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -121,6 +122,40 @@ class AuditoriaServiceTest {
         when(auditoriaRepositoryPort.buscarPorClasificacionRiesgo(AuditoriaService.RIESGO_ALTO)).thenReturn(List.of(mockRegistro));
 
         List<RegistroAuditoria> resultado = auditoriaService.buscarPorClasificacionRiesgo(AuditoriaService.RIESGO_ALTO);
+
+        assertThat(resultado).hasSize(1).contains(mockRegistro);
+        verify(auditoriaRepositoryPort).buscarPorClasificacionRiesgo(AuditoriaService.RIESGO_ALTO);
+    }
+
+    @Test
+    @DisplayName("DADO idTransaccion existente, CUANDO se consulta auditoría, ENTONCES retorna el registro")
+    void debeConsultarPorIdTransaccionExitoso() {
+        RegistroAuditoria mockRegistro = new RegistroAuditoria(3L, "tx-500", "001-A", "002-B", new BigDecimal("150.00"), AuditoriaService.RIESGO_BAJO, LocalDateTime.now(), LocalDateTime.now(), "RABBITMQ_ASYNC");
+        when(auditoriaRepositoryPort.buscarPorIdTransaccion("tx-500")).thenReturn(Optional.of(mockRegistro));
+
+        RegistroAuditoria resultado = auditoriaService.consultarPorIdTransaccion("tx-500");
+
+        assertThat(resultado).isEqualTo(mockRegistro);
+        verify(auditoriaRepositoryPort).buscarPorIdTransaccion("tx-500");
+    }
+
+    @Test
+    @DisplayName("DADO idTransaccion inexistente, CUANDO se consulta auditoría, ENTONCES lanza IllegalArgumentException")
+    void debeLanzarExcepcionCuandoNoExisteTransaccionAuditoria() {
+        when(auditoriaRepositoryPort.buscarPorIdTransaccion("tx-inexistente")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> auditoriaService.consultarPorIdTransaccion("tx-inexistente"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No existe registro de auditoría para la transacción: tx-inexistente");
+    }
+
+    @Test
+    @DisplayName("DADO clasificacionRiesgo, CUANDO se llama consultarPorRiesgo, ENTONCES retorna la lista correspondiente")
+    void debeConsultarPorRiesgoDirectamente() {
+        RegistroAuditoria mockRegistro = new RegistroAuditoria(4L, "tx-600", "001-A", "002-B", new BigDecimal("9999999.00"), AuditoriaService.RIESGO_ALTO, LocalDateTime.now(), LocalDateTime.now(), "RABBITMQ_ASYNC");
+        when(auditoriaRepositoryPort.buscarPorClasificacionRiesgo(AuditoriaService.RIESGO_ALTO)).thenReturn(List.of(mockRegistro));
+
+        List<RegistroAuditoria> resultado = auditoriaService.consultarPorRiesgo(AuditoriaService.RIESGO_ALTO);
 
         assertThat(resultado).hasSize(1).contains(mockRegistro);
         verify(auditoriaRepositoryPort).buscarPorClasificacionRiesgo(AuditoriaService.RIESGO_ALTO);
