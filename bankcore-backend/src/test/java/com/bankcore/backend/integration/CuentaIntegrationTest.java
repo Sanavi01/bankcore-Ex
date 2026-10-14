@@ -111,4 +111,51 @@ class CuentaIntegrationTest {
                 .andExpect(jsonPath("$.type").value(containsString("business-rule-violation")))
                 .andExpect(jsonPath("$.detail").value(containsString("Ya existe una cuenta")));
     }
+
+    @Test
+    @DisplayName("DADO un ID de cuenta existente, CUANDO se consulta por ID, ENTONCES retorna el DTO con HTTP 200")
+    void debeConsultarCuentaPorId() throws Exception {
+        // GIVEN: Una cuenta creada
+        CrearCuentaRequestDto request = new CrearCuentaRequestDto(
+                "001-9999-0004",
+                "Cliente ID Test",
+                new BigDecimal("1200.00")
+        );
+        String response = mockMvc.perform(post("/api/v1/cuentas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        Long id = objectMapper.readTree(response).get("id").asLong();
+
+        // WHEN & THEN: Consulta por ID numérico
+        mockMvc.perform(get("/api/v1/cuentas/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.numeroCuenta").value("001-9999-0004"))
+                .andExpect(jsonPath("$.titular").value("Cliente ID Test"));
+    }
+
+    @Test
+    @DisplayName("DADO una cuenta existente, CUANDO se consultan sus tarjetas asociadas, ENTONCES responde HTTP 200")
+    void debeConsultarTarjetasDeLaCuenta() throws Exception {
+        // GIVEN: Una cuenta creada
+        CrearCuentaRequestDto request = new CrearCuentaRequestDto(
+                "001-9999-0005",
+                "Cliente Tarjetas Test",
+                new BigDecimal("900.00")
+        );
+        String response = mockMvc.perform(post("/api/v1/cuentas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        Long id = objectMapper.readTree(response).get("id").asLong();
+
+        // WHEN & THEN: Consulta endpoint de tarjetas asociadas a la cuenta
+        mockMvc.perform(get("/api/v1/cuentas/{id}/tarjetas", id))
+                .andExpect(status().isOk());
+    }
 }
