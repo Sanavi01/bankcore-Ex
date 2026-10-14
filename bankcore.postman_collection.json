@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "BankCore Digital API - CoE Evaluation Collection",
+    "name": "BankCore Digital API - CoE Evaluation Collection (Full)",
     "_postman_id": "b1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
-    "description": "Colección oficial de pruebas de integración para la arquitectura BankCore Digital (Spring Boot 3 + Angular 19 + RabbitMQ)",
+    "description": "Colección completa y exhaustiva de pruebas de integración para la arquitectura BankCore Digital (Spring Boot 3 + Angular 19 + RabbitMQ EDA). Cubre el 100% de los endpoints de Cuentas, Tarjetas, Transferencias ACID con Idempotencia, Auditoría Forense AML SARLAFT y Observabilidad.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -14,187 +14,296 @@
   ],
   "item": [
     {
-      "name": "1. Cuentas - Obtener Cuenta Origen",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Accept", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/cuentas/1",
-          "host": ["{{baseUrl}}"],
-          "path": ["cuentas", "1"]
+      "name": "1. Subdominio Cuentas Bancarias",
+      "description": "Operaciones del ciclo contable y financiero de cuentas bancarias.",
+      "item": [
+        {
+          "name": "1.1 Cuentas - Crear Nueva Cuenta Bancaria",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"003-POSTMAN\",\n  \"titular\": \"EVALUADOR COE\",\n  \"saldoInicial\": 5000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cuentas",
+              "host": ["{{baseUrl}}"],
+              "path": ["cuentas"]
+            },
+            "description": "Apertura de una nueva cuenta bancaria en estado ACTIVA con saldo inicial registrado."
+          }
         },
-        "description": "Consulta el saldo, titular y estado de la cuenta origen principal (001-ORIGEN)."
-      }
+        {
+          "name": "1.2 Cuentas - Obtener Cuenta Origen por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["cuentas", "1"]
+            },
+            "description": "Consulta el saldo, titular y estado de la cuenta origen principal (ID: 1, 001-ORIGEN)."
+          }
+        },
+        {
+          "name": "1.3 Cuentas - Obtener Cuenta por Número",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/numero/001-ORIGEN",
+              "host": ["{{baseUrl}}"],
+              "path": ["cuentas", "numero", "001-ORIGEN"]
+            },
+            "description": "Consulta datos de cuenta bancaria filtrando directamente por su código de cuenta único."
+          }
+        },
+        {
+          "name": "1.4 Cuentas - Depositar Fondos Directos (Cash-In)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto\": 1500.00,\n  \"concepto\": \"Abono extraordinario nómina o ventanilla\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/1/depositar",
+              "host": ["{{baseUrl}}"],
+              "path": ["cuentas", "1", "depositar"]
+            },
+            "description": "Acredita saldo directamente a la cuenta y genera un movimiento contable de tipo DEPOSITO."
+          }
+        },
+        {
+          "name": "1.5 Cuentas - Consultar Movimientos Contables",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/1/movimientos",
+              "host": ["{{baseUrl}}"],
+              "path": ["cuentas", "1", "movimientos"]
+            },
+            "description": "Devuelve el libro mayor contable con todas las transacciones históricas registradas."
+          }
+        },
+        {
+          "name": "1.6 Cuentas - Consultar Tarjetas de la Cuenta",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cuentas/1/tarjetas",
+              "host": ["{{baseUrl}}"],
+              "path": ["cuentas", "1", "tarjetas"]
+            },
+            "description": "Consulta todas las tarjetas plásticas vinculadas a la cuenta con enmascaramiento PCI-DSS."
+          }
+        }
+      ]
     },
     {
-      "name": "2. Cuentas - Consultar Movimientos Contables",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Accept", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/cuentas/1/movimientos",
-          "host": ["{{baseUrl}}"],
-          "path": ["cuentas", "1", "movimientos"]
+      "name": "2. Subdominio Tarjetas de Crédito",
+      "description": "Gestión del ciclo de vida, emisión y seguridad de tarjetas de crédito/débito.",
+      "item": [
+        {
+          "name": "2.1 Tarjetas - Emitir y Vincular Nueva Tarjeta",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cuentaId\": 1,\n  \"franquicia\": \"VISA\",\n  \"cupoTotal\": 20000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tarjetas",
+              "host": ["{{baseUrl}}"],
+              "path": ["tarjetas"]
+            },
+            "description": "Emite una nueva tarjeta con número determinista por franquicia (VISA 4532, Mastercard 5412, AMEX 3712), fecha de expiración a 5 años y CVV criptográfico."
+          }
         },
-        "description": "Devuelve el libro mayor contable con todas las transacciones históricas registradas."
-      }
+        {
+          "name": "2.2 Tarjetas - Consultar Tarjeta por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tarjetas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["tarjetas", "1"]
+            },
+            "description": "Consulta el detalle individual de una tarjeta con enmascaramiento de seguridad PCI-DSS (**** **** **** 4589)."
+          }
+        },
+        {
+          "name": "2.3 Tarjetas - Bloquear Tarjeta Preventivamente (Idempotente PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tarjetas/1/bloquear",
+              "host": ["{{baseUrl}}"],
+              "path": ["tarjetas", "1", "bloquear"]
+            },
+            "description": "Bloquea de forma segura e idempotente una tarjeta de crédito por alerta preventiva de fraude."
+          }
+        },
+        {
+          "name": "2.4 Tarjetas - Desbloquear / Reactivar Tarjeta (Idempotente PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tarjetas/1/desbloquear",
+              "host": ["{{baseUrl}}"],
+              "path": ["tarjetas", "1", "desbloquear"]
+            },
+            "description": "Restaura el estado de la tarjeta a ACTIVA completando el ciclo de vida de la entidad de dominio."
+          }
+        }
+      ]
     },
     {
-      "name": "3. Cuentas - Consultar Tarjetas de Crédito",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Accept", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/cuentas/1/tarjetas",
-          "host": ["{{baseUrl}}"],
-          "path": ["cuentas", "1", "tarjetas"]
+      "name": "3. Transferencias Bancarias (ACID & EDA)",
+      "description": "Procesamiento transaccional de transferencias atómicas con protección de idempotencia.",
+      "item": [
+        {
+          "name": "3.1 Transferencias - Ejecutar Transferencia Atómica ACID (con Idempotencia)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cuentaOrigen\": \"001-ORIGEN\",\n  \"cuentaDestino\": \"002-DESTINO\",\n  \"monto\": 250.00,\n  \"concepto\": \"Pago de servicios profesionales Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transferencias",
+              "host": ["{{baseUrl}}"],
+              "path": ["transferencias"]
+            },
+            "description": "Despacha una transferencia atómica ACID con bloqueo pesimista en DB, debita en origen, acredita en destino y publica evento asíncrono en RabbitMQ."
+          }
         },
-        "description": "Consulta las tarjetas plásticas VISA y Mastercard vinculadas a la cuenta del cliente."
-      }
+        {
+          "name": "3.2 Transferencias - Reintento con Misma Idempotency-Key (Blindaje Antifraude)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cuentaOrigen\": \"001-ORIGEN\",\n  \"cuentaDestino\": \"002-DESTINO\",\n  \"monto\": 250.00,\n  \"concepto\": \"Pago duplicado por fallo de red\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transferencias",
+              "host": ["{{baseUrl}}"],
+              "path": ["transferencias"]
+            },
+            "description": "Verifica que el backend devuelva la respuesta memorizada sin volver a debitar fondos del cliente (evita doble cobro ante fallos de red)."
+          }
+        }
+      ]
     },
     {
-      "name": "4. Cuentas - Depositar Fondos Directos (Cash-In)",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"monto\": 1500.00,\n  \"concepto\": \"Abono extraordinario nómina o ventanilla\"\n}"
+      "name": "4. Auditoría Forense y Cumplimiento AML (RabbitMQ)",
+      "description": "Consultas de auditoría procesadas asíncronamente por consumidores RabbitMQ y clasificación SARLAFT.",
+      "item": [
+        {
+          "name": "4.1 Auditoría AML - Consultar Registro por ID Transacción",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auditoria/transacciones/f47ac10b-58cc-4372-a567-0e02b2c3d479",
+              "host": ["{{baseUrl}}"],
+              "path": ["auditoria", "transacciones", "f47ac10b-58cc-4372-a567-0e02b2c3d479"]
+            },
+            "description": "Verifica que el consumidor de RabbitMQ persistió la auditoría legal inmutable con su clasificación de riesgo AML."
+          }
         },
-        "url": {
-          "raw": "{{baseUrl}}/cuentas/1/depositar",
-          "host": ["{{baseUrl}}"],
-          "path": ["cuentas", "1", "depositar"]
+        {
+          "name": "4.2 Auditoría AML - Filtrar por Bajo Riesgo Conforme",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auditoria/riesgo/BAJO_RIESGO_CONFORME",
+              "host": ["{{baseUrl}}"],
+              "path": ["auditoria", "riesgo", "BAJO_RIESGO_CONFORME"]
+            },
+            "description": "Permite al oficial de cumplimiento consultar transacciones dentro de los umbrales normales SARLAFT (< 5,000,000)."
+          }
         },
-        "description": "Acredita saldo directamente a la cuenta y genera un registro contable de tipo DEPOSITO."
-      }
+        {
+          "name": "4.3 Auditoría AML - Filtrar por Alerta Alta (SARLAFT)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auditoria/riesgo/ALERTA_AML_REVISION",
+              "host": ["{{baseUrl}}"],
+              "path": ["auditoria", "riesgo", "ALERTA_AML_REVISION"]
+            },
+            "description": "Permite al oficial de cumplimiento auditar transacciones sospechosas o de alto monto (>= 5,000,000)."
+          }
+        }
+      ]
     },
     {
-      "name": "5. Tarjetas - Emitir y Vincular Nueva Tarjeta",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"cuentaId\": 1,\n  \"franquicia\": \"VISA\",\n  \"cupoTotal\": 20000.00\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/tarjetas",
-          "host": ["{{baseUrl}}"],
-          "path": ["tarjetas"]
-        },
-        "description": "Emite una nueva tarjeta plástica con número determinista, fecha de vencimiento a 5 años y CVV criptográfico."
-      }
-    },
-    {
-      "name": "6. Tarjetas - Bloquear Tarjeta Preventivamente (Idempotente PUT)",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Accept", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/tarjetas/1/bloquear",
-          "host": ["{{baseUrl}}"],
-          "path": ["tarjetas", "1", "bloquear"]
-        },
-        "description": "Bloquea de forma segura e idempotente una tarjeta de crédito por alerta preventiva."
-      }
-    },
-    {
-      "name": "7. Tarjetas - Desbloquear / Reactivar Tarjeta (Idempotente PUT)",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Accept", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/tarjetas/1/desbloquear",
-          "host": ["{{baseUrl}}"],
-          "path": ["tarjetas", "1", "desbloquear"]
-        },
-        "description": "Restaura el estado de la tarjeta a ACTIVA completando el ciclo de vida de la entidad de dominio."
-      }
-    },
-    {
-      "name": "8. Transferencias - Ejecutar Transferencia Atómica (con Idempotencia)",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "Idempotency-Key", "value": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"cuentaOrigen\": \"001-ORIGEN\",\n  \"cuentaDestino\": \"002-DESTINO\",\n  \"monto\": 250.00,\n  \"concepto\": \"Pago de servicios profesionales Postman\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/transferencias",
-          "host": ["{{baseUrl}}"],
-          "path": ["transferencias"]
-        },
-        "description": "Despacha una transferencia atómica ACID, descuenta saldo, abona en destino y publica evento en RabbitMQ."
-      }
-    },
-    {
-      "name": "9. Transferencias - Reintento con Misma Idempotency-Key (Blindaje Antifraude)",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "Idempotency-Key", "value": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"cuentaOrigen\": \"001-ORIGEN\",\n  \"cuentaDestino\": \"002-DESTINO\",\n  \"monto\": 250.00,\n  \"concepto\": \"Pago duplicado por fallo de red\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/transferencias",
-          "host": ["{{baseUrl}}"],
-          "path": ["transferencias"]
-        },
-        "description": "Verifica que el backend devuelva la respuesta memorizada sin volver a debitar fondos del cliente."
-      }
-    },
-    {
-      "name": "10. Auditoría AML - Consultar Registro por ID Transacción (RabbitMQ)",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Accept", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/auditoria/transacciones/f47ac10b-58cc-4372-a567-0e02b2c3d479",
-          "host": ["{{baseUrl}}"],
-          "path": ["auditoria", "transacciones", "f47ac10b-58cc-4372-a567-0e02b2c3d479"]
-        },
-        "description": "Verifica que el consumidor de RabbitMQ persistió la auditoría legal con su clasificación de riesgo AML."
-      }
-    },
-    {
-      "name": "11. Healthcheck & Métricas Actuator",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Accept", "value": "application/json" }
-        ],
-        "url": {
-          "raw": "http://localhost:8080/actuator/health",
-          "host": ["http://localhost:8080"],
-          "path": ["actuator", "health"]
-        },
-        "description": "Estado de salud de Spring Boot y conectividad con la base de datos y RabbitMQ."
-      }
+      "name": "5. Observabilidad, Salud & Governance",
+      "description": "Endpoints de monitoreo, telemetría y salud del sistema bancario.",
+      "item": [
+        {
+          "name": "5.1 Actuator - Healthcheck General (DB, Disco, RabbitMQ)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/actuator/health",
+              "host": ["http://localhost:8080"],
+              "path": ["actuator", "health"]
+            },
+            "description": "Estado de salud detallado de Spring Boot y conectividad con la base de datos H2 y el broker RabbitMQ."
+          }
+        }
+      ]
     }
   ]
 }

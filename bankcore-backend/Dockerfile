@@ -10,8 +10,8 @@ COPY gradlew .
 COPY gradle ./gradle
 COPY build.gradle settings.gradle ./
 
-# Otorgar permisos de ejecución al wrapper
-RUN chmod +x gradlew
+# Corregir saltos de línea Windows (CRLF a LF) y otorgar permisos de ejecución al wrapper
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 
 # Descargar dependencias de Gradle en caché
 RUN ./gradlew dependencies --no-daemon || true

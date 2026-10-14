@@ -1,0 +1,6 @@
+# Forzar fin de línea LF para scripts de shell y Gradle (evita errores en Docker / Linux)
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+gradlew text eol=lf
