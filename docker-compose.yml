@@ -1,0 +1,63 @@
+services:
+  # ====================================================================
+  # 1. Broker de Mensajería: RabbitMQ (Event-Driven Architecture)
+  # ====================================================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: bankcore-rabbitmq
+    ports:
+      - "5672:5672"     # Protocolo AMQP para eventos de auditoría
+      - "15672:15672"   # Consola de gestión web (user: guest / pass: guest)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - bank-network
+    restart: unless-stopped
+
+  # ====================================================================
+  # 2. Backend API: Spring Boot 3 & Java 21 (Hexagonal Architecture)
+  # ====================================================================
+  bankcore-backend:
+    build:
+      context: ./bankcore-backend
+      dockerfile: Dockerfile
+    container_name: bankcore-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - bank-network
+    restart: unless-stopped
+
+  # ====================================================================
+  # 3. Frontend SPA: Angular 19 Standalone servida por Nginx Hardened
+  # ====================================================================
+  bankcore-frontend:
+    build:
+      context: ./bankcore
+      dockerfile: Dockerfile
+    container_name: bankcore-frontend
+    ports:
+      - "4200:80"   # Puerto estándar Angular mapeado al Nginx de producción
+      - "80:80"     # Puerto HTTP estándar web
+    depends_on:
+      - bankcore-backend
+    networks:
+      - bank-network
+    restart: unless-stopped
+
+networks:
+  bank-network:
+    driver: bridge

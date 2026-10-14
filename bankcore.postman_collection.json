@@ -1,0 +1,132 @@
+{
+  "info": {
+    "name": "BankCore Digital API - CoE Evaluation Collection",
+    "_postman_id": "b1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+    "description": "Colección oficial de pruebas de integración para la arquitectura BankCore Digital (Spring Boot 3 + Angular 19 + RabbitMQ)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Cuentas - Obtener Cuenta Origen",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/cuentas/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["cuentas", "1"]
+        },
+        "description": "Consulta el saldo, titular y estado de la cuenta origen principal (001-ORIGEN)."
+      }
+    },
+    {
+      "name": "2. Cuentas - Consultar Movimientos Contables",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/cuentas/1/movimientos",
+          "host": ["{{baseUrl}}"],
+          "path": ["cuentas", "1", "movimientos"]
+        },
+        "description": "Devuelve el libro mayor contable con todas las transacciones históricas registradas."
+      }
+    },
+    {
+      "name": "3. Cuentas - Consultar Tarjetas de Crédito",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/cuentas/1/tarjetas",
+          "host": ["{{baseUrl}}"],
+          "path": ["cuentas", "1", "tarjetas"]
+        },
+        "description": "Consulta las tarjetas plásticas VISA y Mastercard vinculadas a la cuenta del cliente."
+      }
+    },
+    {
+      "name": "4. Transferencias - Ejecutar Transferencia Atómica (con Idempotencia)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cuentaOrigen\": \"001-ORIGEN\",\n  \"cuentaDestino\": \"002-DESTINO\",\n  \"monto\": 250.00,\n  \"concepto\": \"Pago de servicios profesionales Postman\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transferencias",
+          "host": ["{{baseUrl}}"],
+          "path": ["transferencias"]
+        },
+        "description": "Despacha una transferencia atómica ACID, descuenta saldo, abona en destino y publica evento en RabbitMQ."
+      }
+    },
+    {
+      "name": "5. Transferencias - Reintento con Misma Idempotency-Key (Blindaje Antifraude)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cuentaOrigen\": \"001-ORIGEN\",\n  \"cuentaDestino\": \"002-DESTINO\",\n  \"monto\": 250.00,\n  \"concepto\": \"Pago duplicado por fallo de red\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/transferencias",
+          "host": ["{{baseUrl}}"],
+          "path": ["transferencias"]
+        },
+        "description": "Verifica que el backend devuelva la respuesta memorizada sin volver a debitar fondos del cliente."
+      }
+    },
+    {
+      "name": "6. Tarjetas - Bloquear Tarjeta Preventivamente (Idempotente PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/tarjetas/1/bloquear",
+          "host": ["{{baseUrl}}"],
+          "path": ["tarjetas", "1", "bloquear"]
+        },
+        "description": "Bloquea de forma segura e idempotente una tarjeta de crédito por alerta preventiva."
+      }
+    },
+    {
+      "name": "7. Healthcheck & Métricas Actuator",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/actuator/health",
+          "host": ["http://localhost:8080"],
+          "path": ["actuator", "health"]
+        },
+        "description": "Estado de salud de Spring Boot y conectividad con la base de datos y RabbitMQ."
+      }
+    }
+  ]
+}
