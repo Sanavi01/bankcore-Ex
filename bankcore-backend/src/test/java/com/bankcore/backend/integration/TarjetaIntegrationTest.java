@@ -130,4 +130,31 @@ class TarjetaIntegrationTest {
                 .andExpect(jsonPath("$[0].numeroTarjeta").value("**** **** **** 9010"))
                 .andExpect(jsonPath("$[0].franquicia").value("VISA"));
     }
+
+    @Test
+    @DisplayName("DADO un ID de tarjeta existente, CUANDO se consulta por ID, ENTONCES retorna el DTO con HTTP 200")
+    void debeConsultarTarjetaPorId() throws Exception {
+        // GIVEN: Cuenta y tarjeta creada
+        Long cuentaId = crearCuentaYObtenerId("001-TARJ-0004");
+        Tarjeta tarjeta = new Tarjeta(
+                null,
+                "4532-9876-5432-1098",
+                "VISA",
+                "09/29",
+                "999",
+                new BigDecimal("4000.00"),
+                new BigDecimal("4000.00"),
+                EstadoCuenta.ACTIVA,
+                cuentaId
+        );
+        Tarjeta guardada = tarjetaRepositoryPort.guardar(tarjeta);
+
+        // WHEN & THEN: Consulta por ID individual
+        mockMvc.perform(get("/api/v1/tarjetas/{id}", guardada.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(guardada.getId()))
+                .andExpect(jsonPath("$.numeroTarjeta").value("**** **** **** 1098"))
+                .andExpect(jsonPath("$.franquicia").value("VISA"))
+                .andExpect(jsonPath("$.cuentaId").value(cuentaId));
+    }
 }
