@@ -190,7 +190,7 @@ erDiagram
 - [x] **2.6 Ingeniería de Rendimiento & Estrés con Grafana k6 (DevOps / SRE):**
   - Creación del script `k6/load-test.js` con ráfagas concurrentes de hasta 100 VUs, thresholds p(95) < 400ms y validación de idempotencia UUID.
   - **Resultados Certificados de Carga:** **15,980 transacciones procesadas a 532.5 TPS**, **0.00% tasa de fallo (0 errores)**, latencia **p(95) de 80.62ms** (superando con holgura el SLA de < 400ms) y verificación visual de drenaje en RabbitMQ Management UI.
-- [ ] **2.7 🎙️ Simulacro CoE Día 2:**
+- [x] **2.7 🎙️ Simulacro CoE Día 2:**
   - Batería de 2 preguntas de entrevista resueltas en 20 segundos (*Justificación EDA, Libro Mayor vs Auditoría AML, y arquitectura de una Dead Letter Queue*).
 
 ---
