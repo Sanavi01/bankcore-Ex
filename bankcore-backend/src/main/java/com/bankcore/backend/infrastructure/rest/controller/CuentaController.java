@@ -82,4 +82,13 @@ public class CuentaController {
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(restMapper.toResponseDto(cuenta));
     }
+
+    @Operation(summary = "Depositar fondos en la cuenta", description = "Abona saldo de forma directa y registra un movimiento contable tipo DEPOSITO")
+    @PostMapping("/{id}/depositar")
+    public ResponseEntity<CuentaResponseDto> depositar(
+            @PathVariable Long id,
+            @Valid @RequestBody com.bankcore.backend.dto.DepositarRequestDto request) {
+        Cuenta cuentaActualizada = cuentaService.depositar(id, request.monto(), request.concepto());
+        return ResponseEntity.ok(restMapper.toResponseDto(cuentaActualizada));
+    }
 }
