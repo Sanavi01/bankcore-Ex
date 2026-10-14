@@ -1,72 +1,44 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { CuentaBancaria } from '../models/cuenta.model';
+import { MovimientoBancarioDto } from '../models/movimiento.model';
 import { Transaccion } from '../models/transaccion.model';
+import { CuentaAdapter } from '../adapters/cuenta.adapter';
 import { BANK_CONFIG } from '../tokens/bank-config.token';
 
+/**
+ * Servicio de Dominio para Cuentas Bancarias y Movimientos.
+ * Responsabilidad Única (SRP): Consulta de estado de cuentas y libro contable.
+ */
 @Injectable({
-  providedIn: 'root' // Singleton a nivel raíz de toda la app
+  providedIn: 'root'
 })
 export class CuentasService {
-  // 1. Inyección de dependencia moderna dentro de un servicio:
+  private readonly http = inject(HttpClient);
   private readonly config = inject(BANK_CONFIG);
-
-  // 2. Fuente de datos de negocio (Centralizada, no dispersa en los componentes):
-  private readonly historialMovimientos: Transaccion[] = [
-    {
-      id: 'TX-1001',
-      monto: 3500.00,
-      tipo: 'INGRESO',
-      concepto: 'Depósito de Nómina Quincenal',
-      fecha: new Date('2026-10-01T08:30:00'),
-      estado: 'COMPLETADA',
-      referencia: 'NOM-9821-TECH'
-    },
-    {
-      id: 'TX-1002',
-      monto: 120.50,
-      tipo: 'EGRESO',
-      concepto: 'Pago de Servicio Eléctrico',
-      fecha: new Date('2026-10-02T14:15:00'),
-      estado: 'COMPLETADA',
-      referencia: 'REC-5541'
-    },
-    {
-      id: 'TX-1003',
-      monto: 850.00,
-      tipo: 'EGRESO',
-      concepto: 'Transferencia Interbancaria SPEI',
-      fecha: new Date('2026-10-04T19:40:00'),
-      estado: 'PENDIENTE',
-      referencia: 'SPEI-8841-BCO'
-    },
-    {
-      id: 'TX-1004',
-      monto: 2500.00,
-      tipo: 'EGRESO',
-      concepto: 'Intento de Retiro en Cajero Ajeno',
-      fecha: new Date('2026-10-05T02:10:00'),
-      estado: 'RECHAZADA',
-      referencia: 'ATM-ERR-99'
-    }
-  ];
+  private readonly apiUrl = 'http://localhost:8080/api/v1';
 
   /**
-   * Obtiene la configuración bancaria inyectada.
+   * Obtiene la configuración bancaria inyectada por tokens.
    */
   obtenerConfiguracion() {
     return this.config;
   }
 
   /**
-   * Obtiene el listado de movimientos de la cuenta.
+   * Consulta los datos de la cuenta por ID desde la API REST de Spring Boot.
    */
-  obtenerHistorial(): Transaccion[] {
-    return this.historialMovimientos;
+  obtenerCuenta(id: number = 1): Observable<CuentaBancaria> {
+    return this.http.get<CuentaBancaria>(`${this.apiUrl}/cuentas/${id}`);
   }
 
   /**
-   * Regla de negocio: Valida si una transferencia excede el límite configurado en el Token.
+   * Consulta los movimientos contables de la cuenta y los adapta al modelo visual.
    */
-  validarLimiteTransferencia(monto: number): boolean {
-    return monto <= this.config.limiteTransferenciaDiaria;
+  obtenerMovimientos(id: number = 1): Observable<Transaccion[]> {
+    return this.http.get<MovimientoBancarioDto[]>(`${this.apiUrl}/cuentas/${id}/movimientos`).pipe(
+      map(movimientos => movimientos.map(CuentaAdapter.adaptarMovimiento))
+    );
   }
 }

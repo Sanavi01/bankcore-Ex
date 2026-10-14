@@ -1,0 +1,136 @@
+<div class="contenedor-transferencia">
+  <div class="cabecera-form">
+    <div class="icono-banco">💸</div>
+    <div>
+      <h3 class="titulo-form">Transferencias Inmediatas BankCore</h3>
+      <p class="subtitulo-form">Débito automático desde tu cuenta activa con validación defensiva</p>
+    </div>
+  </div>
+
+  <!-- TARJETA INFORMATIVA: CUENTA ORIGEN PREVIAMENTE DEFINIDA -->
+  <div class="tarjeta-origen-fija">
+    <div class="icono-origen">🔒</div>
+    <div class="detalles-origen">
+      <div class="etiqueta-origen">Débito desde cuenta activa:</div>
+      <div class="numero-origen">{{ cuentaOrigenDefault() }}</div>
+    </div>
+    <div class="saldo-origen-bloque">
+      <span class="subtexto-saldo">Saldo Disponible</span>
+      <span class="valor-saldo">{{ saldoDisponible() | currency:'USD':'symbol':'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <!-- BANNER DE ÉXITO -->
+  @if (mensajeExito()) {
+    <div class="alerta alerta-exito" role="alert" id="alerta-transferencia-exito">
+      <span>{{ mensajeExito() }}</span>
+      <button type="button" class="btn-cerrar-alerta" (click)="mensajeExito.set(null)">✕</button>
+    </div>
+  }
+
+  <!-- BANNER DE ERROR -->
+  @if (mensajeError()) {
+    <div class="alerta alerta-error" role="alert" id="alerta-transferencia-error">
+      <span>{{ mensajeError() }}</span>
+      <button type="button" class="btn-cerrar-alerta" (click)="mensajeError.set(null)">✕</button>
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="formulario-reactivo" novalidate>
+    
+    <div class="fila-campos">
+      <!-- CAMPO: CUENTA DESTINO -->
+      <div class="grupo-campo">
+        <label for="cuentaDestino" class="etiqueta-campo">
+          Cuenta Destino <span class="obligatorio">*</span>
+        </label>
+        <input 
+          id="cuentaDestino"
+          type="text"
+          formControlName="cuentaDestino"
+          class="input-bancario"
+          [class.input-invalido]="tieneError(cuentaDestinoCtrl, 'required') || tieneError(cuentaDestinoCtrl, 'minlength') || tieneErrorCuentasIdenticas"
+          placeholder="Ej: 002-DESTINO" />
+
+        @if (tieneError(cuentaDestinoCtrl, 'required')) {
+          <span class="texto-error">El número de cuenta de destino es obligatorio.</span>
+        }
+        @if (tieneError(cuentaDestinoCtrl, 'minlength')) {
+          <span class="texto-error">La cuenta debe tener al menos 8 caracteres.</span>
+        }
+        @if (tieneErrorCuentasIdenticas) {
+          <span class="texto-error">⚠️ No puedes transferirte a tu propia cuenta de origen.</span>
+        }
+      </div>
+
+      <!-- CAMPO: MONTO -->
+      <div class="grupo-campo">
+        <label for="monto" class="etiqueta-campo">
+          Monto a Transferir (USD) <span class="obligatorio">*</span>
+        </label>
+        <div class="input-con-prefijo">
+          <span class="prefijo-moneda">$</span>
+          <input 
+            id="monto"
+            type="number"
+            step="0.01"
+            formControlName="monto"
+            class="input-bancario con-prefijo"
+            [class.input-invalido]="tieneError(montoCtrl, 'required') || tieneError(montoCtrl, 'min')"
+            placeholder="0.00" />
+        </div>
+
+        @if (tieneError(montoCtrl, 'required')) {
+          <span class="texto-error">El monto de la transferencia es obligatorio.</span>
+        }
+        @if (tieneError(montoCtrl, 'min')) {
+          <span class="texto-error">El monto mínimo permitido es $1.00 USD.</span>
+        }
+      </div>
+    </div>
+
+    <!-- CAMPO: CONCEPTO -->
+    <div class="grupo-campo">
+      <label for="concepto" class="etiqueta-campo">
+        Concepto / Motivo <span class="obligatorio">*</span>
+      </label>
+      <input 
+        id="concepto"
+        type="text"
+        formControlName="concepto"
+        class="input-bancario"
+        [class.input-invalido]="tieneError(conceptoCtrl, 'required') || tieneError(conceptoCtrl, 'maxlength')"
+        placeholder="Ej: Pago de nómina, servicios o factura" />
+
+      @if (tieneError(conceptoCtrl, 'required')) {
+        <span class="texto-error">El concepto es obligatorio para fines contables y de auditoría.</span>
+      }
+      @if (tieneError(conceptoCtrl, 'maxlength')) {
+        <span class="texto-error">El concepto no puede exceder los 100 caracteres.</span>
+      }
+    </div>
+
+    <!-- ACCIONES DEL FORMULARIO -->
+    <div class="acciones-form">
+      <div class="resumen-transferencia">
+        @if (form.valid) {
+          <span class="tag-valido">✓ Transferencia Lista</span>
+        } @else {
+          <span class="tag-incompleto">ℹ️ Ingresa cuenta destino, monto y concepto</span>
+        }
+      </div>
+
+      <button 
+        type="submit" 
+        id="btn-enviar-transferencia"
+        class="btn-transferir"
+        [disabled]="form.invalid || enviando()">
+        @if (enviando()) {
+          <span class="spinner"></span> Procesando en Red Bancaria...
+        } @else {
+          🚀 Ejecutar Transferencia Inmediata
+        }
+      </button>
+    </div>
+  </form>
+</div>

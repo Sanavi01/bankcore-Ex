@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { TarjetasList } from './tarjetas-list';
 
 describe('TarjetasList', () => {
@@ -13,6 +12,7 @@ describe('TarjetasList', () => {
 
     fixture = TestBed.createComponent(TarjetasList);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('tarjetas', []);
     await fixture.whenStable();
   });
 

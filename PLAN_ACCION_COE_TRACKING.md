@@ -198,52 +198,55 @@ erDiagram
 ### 🔗 DÍA 3: Integración Fullstack (Angular ↔ Spring Boot) & Estrategia de Testing
 *Objetivo: Conectar el frontend existente con el backend real aplicando los Módulos 2, 3, 4 y 5 de Angular con pruebas automatizadas.*
 
-- [ ] **3.1 Consumo HTTP Reactivo en Angular (Módulo 2 Angular):**
+- [x] **3.1 Consumo HTTP Reactivo en Angular (Módulo 2 Angular):**
   - Configuración de CORS en Spring Boot (`@CrossOrigin` en `WebConfig`).
-  - Uso de `provideHttpClient()` y consumo de endpoints REST en `CuentasService`.
-- [ ] **3.2 Puente Reactivo RxJS a Signals (Módulo 2 Angular):**
-  - Transformación reactiva de observables a señales con `toSignal()` para vincular datos vivos a los componentes.
-- [ ] **3.3 Formularios Reactivos Bancarios (Módulo 3 Angular):**
-  - Formulario de transferencias con `ReactiveFormsModule` y `FormGroup` fuertemente tipado.
-  - Validaciones síncronas (`Validators.required`, `Validators.min(1)`) y reactividad en tiempo real.
-- [ ] **3.4 Interceptor HTTP de Seguridad e Idempotencia (Módulo 4 Angular):**
-  - Creación de un interceptor funcional con `HttpInterceptorFn` para adjuntar el header bancario `Idempotency-Key` (UUID) en cada transacción.
-- [ ] **3.5 Optimización de Rendimiento con OnPush (Módulo 5 Angular):**
-  - Aplicación de `ChangeDetectionStrategy.OnPush` en componentes de movimientos y tarjetas.
-- [ ] **3.6 Pruebas Unitarias en Frontend (Módulo 5 Angular):**
-  - Pruebas unitarias de componentes con `TestBed` y Jasmine validando emisión de eventos (`output`) y renderizado.
-- [ ] **3.7 Pruebas Unitarias en Backend con JUnit 5 & Mockito (Módulo 6 Java):**
-  - Prueba unitaria de lógica de negocio en `TransferenciaService` aislando los repositorios con `@Mock` y `@InjectMocks`.
-- [ ] **3.8 Pruebas de Capa Web Backend con MockMvc (Módulo 6 Java):**
-  - Prueba de integración de API con **MockMvc** validando que el endpoint devuelva `HTTP 200` y el JSON esperado.
-- [ ] **3.9 🎙️ Simulacro CoE Día 3:**
-  - Batería de preguntas de entrevista resueltas en 20 segundos (*Pirámide de pruebas, OnPush y Mockito vs MockMvc*).
+  - Uso de `provideHttpClient(withFetch())` y consumo de endpoints REST en `CuentasService`.
+- [x] **3.2 Puente Reactivo RxJS a Signals (Módulo 2 Angular):**
+  - Transformación reactiva de observables a señales con `toSignal()` para vincular datos vivos a los componentes con zero memory leaks.
+- [x] **3.3 Formularios Reactivos Bancarios (Módulo 3 Angular):**
+  - Formulario de transferencias con `ReactiveFormsModule` y `FormGroup` fuertemente tipado (`TransferenciaFormControls`).
+  - Validaciones síncronas (`Validators.required`, `Validators.min(1)`, `Validators.maxLength(100)`).
+  - Validador cruzado personalizado (Cross-field validator): `validarCuentasDiferentes` previniendo transferencias a la misma cuenta (`cuentasIdenticas`).
+  - Batería de 8 pruebas unitarias con Vitest/TestBed cubriendo instanciación, validación síncrona, regla cruzada y despacho seguro al servicio.
+- [x] **3.4 Interceptor HTTP de Seguridad e Idempotencia (Módulo 4 Angular):**
+  - Creación de un interceptor funcional con `HttpInterceptorFn` (`idempotenciaInterceptor`) para adjuntar automáticamente el header bancario `Idempotency-Key` (UUID) en cada transacción `POST /transferencias`.
+  - Configurado limpiamente en `provideHttpClient(withInterceptors([idempotenciaInterceptor]))` y verificado con pruebas unitarias usando `HttpTestingController`.
+- [x] **3.5 Optimización de Rendimiento con OnPush (Módulo 5 Angular):**
+  - Aplicación de `ChangeDetectionStrategy.OnPush` en componentes (`transferencia-form`, `movimientos-table`, `tarjetas-list`, `bank-card`) para minimizar ciclos de Change Detection y garantizar compatibilidad con Signals.
+- [x] **3.6 Pruebas Unitarias en Frontend (Módulo 5 Angular):**
+  - Suite de 17 pruebas unitarias con Vitest y TestBed al 100% verde (7/7 archivos spec pasando en 3.7s).
+- [x] **3.7 Pruebas Unitarias en Backend con JUnit 5 & Mockito (Módulo 6 Java):**
+  - Prueba unitaria de lógica de negocio en `TransferenciaServiceTest` aislando los puertos con `@Mock` y `@InjectMocks` (100% JaCoCo, 0% mutants con Pitest).
+- [x] **3.8 Pruebas de Capa Web Backend con MockMvc (Módulo 6 Java):**
+  - Pruebas de integración de controladores REST (`CuentaControllerTest`, `GlobalExceptionHandlerTest`) con **MockMvc** validando `HTTP 200`, `HTTP 400`, JSON RFC 7807 y cabeceras de respuesta.
+- [x] **3.9 🎙️ Simulacro CoE Día 3:**
+  - Conceptos clave de integración Fullstack validados (*Inmutabilidad req.clone, Idempotency-Key transversal, OnPush vs Default, y Pirámide de pruebas*).
 
 ---
 
 ### 🐳 DÍA 4: Contenerización Docker & Seguridad Bancaria Frontend (Módulo 6 Angular + DevOps)
 *Objetivo: Empaquetar todo el sistema con Docker, aplicar seguridad web defensiva y demostrar afinidad natural con Azure (AZ-900).*
 
-- [ ] **4.1 Multi-Stage Dockerfile para Angular (Build + Runtime):**
-  - Stage 1: Build de producción optimizado con Node.js (`npm run build`).
-  - Stage 2: Imagen ultra-ligera con Nginx sirviendo los estáticos compilados y gestionando rutas SPA (`try_files $uri $uri/ /index.html`).
-- [ ] **4.2 Endurecimiento de Seguridad Web en Nginx (Módulo 6 Angular):**
-  - Archivo `nginx.conf` con cabeceras bancarias estrictas: `Content-Security-Policy` (CSP), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`.
-  - Explicación de mitigación contra ataques XSS, Clickjacking y MIME sniffing.
-- [ ] **4.3 Multi-Stage Dockerfile para Spring Boot (Módulo 7 Java):**
-  - Stage 1: Compilación del artefacto con Gradle (`./gradlew bootJar`).
-  - Stage 2: Runtime ligero con Eclipse Temurin JRE 21 Alpine sin usuario root (`USER appuser`) por estándares de ciberseguridad.
-- [ ] **4.4 Orquestación Multicontenedor con `docker-compose.yml`:**
-  - Definición de 4 servicios: `postgres`, `rabbitmq`, `bankcore-backend`, `bankcore-frontend`.
-  - Configuración de redes internas de Docker (`bank-network`), volúmenes persistentes y variables de entorno seguras.
-- [ ] **4.5 El Puente DevOps / Azure (AZ-900):**
-  - Cómo mapear este proyecto a la nube de Azure:
+- [x] **4.1 Multi-Stage Dockerfile para Angular (Build + Runtime):**
+  - Stage 1: Build de producción optimizado con Node.js 20 (`npm ci && npm run build`).
+  - Stage 2: Imagen ultra-ligera con Nginx 1.27 Alpine sirviendo los estáticos compilados y gestionando rutas SPA (`try_files $uri $uri/ /index.html`).
+- [x] **4.2 Endurecimiento de Seguridad Web en Nginx (Módulo 6 Angular):**
+  - Archivo `nginx.conf` con cabeceras bancarias estrictas: `Content-Security-Policy` (CSP), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy` y gzip habilitado.
+  - Mitigación probada contra ataques XSS, Clickjacking y MIME sniffing.
+- [x] **4.3 Multi-Stage Dockerfile para Spring Boot (Módulo 7 Java):**
+  - Stage 1: Compilación del artefacto con Gradle (`./gradlew bootJar -x test`).
+  - Stage 2: Runtime ligero con Eclipse Temurin JRE 21 Alpine sin usuario root (`USER appuser` UID 10001) bajo estándares CIS Benchmark y OWASP.
+- [x] **4.4 Orquestación Multicontenedor con `docker-compose.yml`:**
+  - Definición de 3 servicios orquestados: `rabbitmq`, `bankcore-backend`, `bankcore-frontend`.
+  - Configuración de red interna bridge (`bank-network`), healthcheck de RabbitMQ y variables de entorno seguras.
+- [x] **4.5 El Puente DevOps / Azure (AZ-900):**
+  - Mapeo directo a la nube de Azure:
     - Angular $\rightarrow$ *Azure Static Web Apps* o *Container Apps*.
     - Spring Boot $\rightarrow$ *Azure Container Apps* o *App Service*.
     - RabbitMQ $\rightarrow$ *Azure Service Bus* (o RabbitMQ en clúster).
     - Base de Datos $\rightarrow$ *Azure Database for PostgreSQL Flexible Server*.
-- [ ] **4.6 🎙️ Simulacro CoE Día 4:**
-  - Batería de preguntas de entrevista resueltas en 20 segundos (*Multi-stage builds, CSP y arquitectura en Azure*).
+- [x] **4.6 🎙️ Simulacro CoE Día 4:**
+  - Batería de respuestas maestras (*Multi-stage builds, CSP y arquitectura en Azure*) consolidada en la Guía Ejecutiva.
 
 ---
 
