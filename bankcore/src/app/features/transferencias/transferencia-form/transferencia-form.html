@@ -3,7 +3,20 @@
     <div class="icono-banco">💸</div>
     <div>
       <h3 class="titulo-form">Transferencias Inmediatas BankCore</h3>
-      <p class="subtitulo-form">Formulario reactivo con validación defensiva y despacho atómico</p>
+      <p class="subtitulo-form">Débito automático desde tu cuenta activa con validación defensiva</p>
+    </div>
+  </div>
+
+  <!-- TARJETA INFORMATIVA: CUENTA ORIGEN PREVIAMENTE DEFINIDA -->
+  <div class="tarjeta-origen-fija">
+    <div class="icono-origen">🔒</div>
+    <div class="detalles-origen">
+      <div class="etiqueta-origen">Débito desde cuenta activa:</div>
+      <div class="numero-origen">{{ cuentaOrigenDefault() }}</div>
+    </div>
+    <div class="saldo-origen-bloque">
+      <span class="subtexto-saldo">Saldo Disponible</span>
+      <span class="valor-saldo">{{ saldoDisponible() | currency:'USD':'symbol':'1.2-2' }}</span>
     </div>
   </div>
 
@@ -24,28 +37,8 @@
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="formulario-reactivo" novalidate>
+    
     <div class="fila-campos">
-      <!-- CAMPO: CUENTA ORIGEN -->
-      <div class="grupo-campo">
-        <label for="cuentaOrigen" class="etiqueta-campo">
-          Cuenta Origen <span class="obligatorio">*</span>
-        </label>
-        <input 
-          id="cuentaOrigen"
-          type="text"
-          formControlName="cuentaOrigen"
-          class="input-bancario"
-          [class.input-invalido]="tieneError(cuentaOrigenCtrl, 'required') || tieneError(cuentaOrigenCtrl, 'minlength')"
-          placeholder="001-ORIGEN" />
-        
-        @if (tieneError(cuentaOrigenCtrl, 'required')) {
-          <span class="texto-error">El número de cuenta de origen es obligatorio.</span>
-        }
-        @if (tieneError(cuentaOrigenCtrl, 'minlength')) {
-          <span class="texto-error">La cuenta debe tener al menos 8 caracteres.</span>
-        }
-      </div>
-
       <!-- CAMPO: CUENTA DESTINO -->
       <div class="grupo-campo">
         <label for="cuentaDestino" class="etiqueta-campo">
@@ -66,12 +59,10 @@
           <span class="texto-error">La cuenta debe tener al menos 8 caracteres.</span>
         }
         @if (tieneErrorCuentasIdenticas) {
-          <span class="texto-error">⚠️ La cuenta destino no puede ser idéntica a la cuenta de origen.</span>
+          <span class="texto-error">⚠️ No puedes transferirte a tu propia cuenta de origen.</span>
         }
       </div>
-    </div>
 
-    <div class="fila-campos">
       <!-- CAMPO: MONTO -->
       <div class="grupo-campo">
         <label for="monto" class="etiqueta-campo">
@@ -96,36 +87,36 @@
           <span class="texto-error">El monto mínimo permitido es $1.00 USD.</span>
         }
       </div>
+    </div>
 
-      <!-- CAMPO: CONCEPTO -->
-      <div class="grupo-campo">
-        <label for="concepto" class="etiqueta-campo">
-          Concepto / Motivo <span class="obligatorio">*</span>
-        </label>
-        <input 
-          id="concepto"
-          type="text"
-          formControlName="concepto"
-          class="input-bancario"
-          [class.input-invalido]="tieneError(conceptoCtrl, 'required') || tieneError(conceptoCtrl, 'maxlength')"
-          placeholder="Ej: Pago de honorarios o servicios" />
+    <!-- CAMPO: CONCEPTO -->
+    <div class="grupo-campo">
+      <label for="concepto" class="etiqueta-campo">
+        Concepto / Motivo <span class="obligatorio">*</span>
+      </label>
+      <input 
+        id="concepto"
+        type="text"
+        formControlName="concepto"
+        class="input-bancario"
+        [class.input-invalido]="tieneError(conceptoCtrl, 'required') || tieneError(conceptoCtrl, 'maxlength')"
+        placeholder="Ej: Pago de nómina, servicios o factura" />
 
-        @if (tieneError(conceptoCtrl, 'required')) {
-          <span class="texto-error">El concepto es obligatorio para fines contables y de auditoría.</span>
-        }
-        @if (tieneError(conceptoCtrl, 'maxlength')) {
-          <span class="texto-error">El concepto no puede exceder los 100 caracteres.</span>
-        }
-      </div>
+      @if (tieneError(conceptoCtrl, 'required')) {
+        <span class="texto-error">El concepto es obligatorio para fines contables y de auditoría.</span>
+      }
+      @if (tieneError(conceptoCtrl, 'maxlength')) {
+        <span class="texto-error">El concepto no puede exceder los 100 caracteres.</span>
+      }
     </div>
 
     <!-- ACCIONES DEL FORMULARIO -->
     <div class="acciones-form">
       <div class="resumen-transferencia">
         @if (form.valid) {
-          <span class="tag-valido">✓ Formulario Válido</span>
+          <span class="tag-valido">✓ Transferencia Lista</span>
         } @else {
-          <span class="tag-incompleto">ℹ️ Completa los campos requeridos</span>
+          <span class="tag-incompleto">ℹ️ Ingresa cuenta destino, monto y concepto</span>
         }
       </div>
 

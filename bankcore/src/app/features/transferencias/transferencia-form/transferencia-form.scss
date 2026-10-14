@@ -42,6 +42,58 @@
   }
 }
 
+.tarjeta-origen-fija {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-left: 4px solid #0f172a;
+  border-radius: 8px;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  .icono-origen {
+    font-size: 1.3rem;
+  }
+
+  .detalles-origen {
+    flex: 1;
+
+    .etiqueta-origen {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .numero-origen {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+  }
+
+  .saldo-origen-bloque {
+    text-align: right;
+
+    .subtexto-saldo {
+      display: block;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .valor-saldo {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #16a34a;
+    }
+  }
+}
+
 .alerta {
   display: flex;
   justify-content: space-between;

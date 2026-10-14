@@ -208,18 +208,19 @@ erDiagram
   - Validaciones síncronas (`Validators.required`, `Validators.min(1)`, `Validators.maxLength(100)`).
   - Validador cruzado personalizado (Cross-field validator): `validarCuentasDiferentes` previniendo transferencias a la misma cuenta (`cuentasIdenticas`).
   - Batería de 8 pruebas unitarias con Vitest/TestBed cubriendo instanciación, validación síncrona, regla cruzada y despacho seguro al servicio.
-- [ ] **3.4 Interceptor HTTP de Seguridad e Idempotencia (Módulo 4 Angular):**
-  - Creación de un interceptor funcional con `HttpInterceptorFn` para adjuntar el header bancario `Idempotency-Key` (UUID) en cada transacción.
-- [ ] **3.5 Optimización de Rendimiento con OnPush (Módulo 5 Angular):**
-  - Aplicación de `ChangeDetectionStrategy.OnPush` en componentes de movimientos y tarjetas.
-- [ ] **3.6 Pruebas Unitarias en Frontend (Módulo 5 Angular):**
-  - Pruebas unitarias de componentes con `TestBed` y Jasmine validando emisión de eventos (`output`) y renderizado.
-- [ ] **3.7 Pruebas Unitarias en Backend con JUnit 5 & Mockito (Módulo 6 Java):**
-  - Prueba unitaria de lógica de negocio en `TransferenciaService` aislando los repositorios con `@Mock` y `@InjectMocks`.
-- [ ] **3.8 Pruebas de Capa Web Backend con MockMvc (Módulo 6 Java):**
-  - Prueba de integración de API con **MockMvc** validando que el endpoint devuelva `HTTP 200` y el JSON esperado.
-- [ ] **3.9 🎙️ Simulacro CoE Día 3:**
-  - Batería de preguntas de entrevista resueltas en 20 segundos (*Pirámide de pruebas, OnPush y Mockito vs MockMvc*).
+- [x] **3.4 Interceptor HTTP de Seguridad e Idempotencia (Módulo 4 Angular):**
+  - Creación de un interceptor funcional con `HttpInterceptorFn` (`idempotenciaInterceptor`) para adjuntar automáticamente el header bancario `Idempotency-Key` (UUID) en cada transacción `POST /transferencias`.
+  - Configurado limpiamente en `provideHttpClient(withInterceptors([idempotenciaInterceptor]))` y verificado con pruebas unitarias usando `HttpTestingController`.
+- [x] **3.5 Optimización de Rendimiento con OnPush (Módulo 5 Angular):**
+  - Aplicación de `ChangeDetectionStrategy.OnPush` en componentes (`transferencia-form`, `movimientos-table`, `tarjetas-list`, `bank-card`) para minimizar ciclos de Change Detection y garantizar compatibilidad con Signals.
+- [x] **3.6 Pruebas Unitarias en Frontend (Módulo 5 Angular):**
+  - Suite de 17 pruebas unitarias con Vitest y TestBed al 100% verde (7/7 archivos spec pasando en 3.7s).
+- [x] **3.7 Pruebas Unitarias en Backend con JUnit 5 & Mockito (Módulo 6 Java):**
+  - Prueba unitaria de lógica de negocio en `TransferenciaServiceTest` aislando los puertos con `@Mock` y `@InjectMocks` (100% JaCoCo, 0% mutants con Pitest).
+- [x] **3.8 Pruebas de Capa Web Backend con MockMvc (Módulo 6 Java):**
+  - Pruebas de integración de controladores REST (`CuentaControllerTest`, `GlobalExceptionHandlerTest`) con **MockMvc** validando `HTTP 200`, `HTTP 400`, JSON RFC 7807 y cabeceras de respuesta.
+- [x] **3.9 🎙️ Simulacro CoE Día 3:**
+  - Conceptos clave de integración Fullstack validados (*Inmutabilidad req.clone, Idempotency-Key transversal, OnPush vs Default, y Pirámide de pruebas*).
 
 ---
 
