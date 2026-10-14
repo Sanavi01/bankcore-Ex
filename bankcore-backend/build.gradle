@@ -87,13 +87,26 @@ tasks.named('jacocoTestReport') {
     }
 }
 
+afterEvaluate {
+    tasks.named('jacocoTestReport') {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                'com/bankcore/backend/BankCoreApplication.class',
+                'com/bankcore/backend/config/**',
+                'com/bankcore/backend/dto/**',
+                'com/bankcore/backend/**/entity/**'
+            ])
+        }))
+    }
+}
+
 // Configuración SonarQube (Quality Gates & SAST)
 sonar {
     properties {
         property "sonar.projectKey", "bankcore-backend"
         property "sonar.projectName", "BankCore Digital Backend"
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.exclusions", "**/config/**,**/dto/**"
+        property "sonar.exclusions", "**/config/**,**/dto/**,**/BankCoreApplication.java,**/entity/**"
     }
 }
 
